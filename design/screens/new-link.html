@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New link | Tracked Links design reference</title>
+<!-- Static design reference exported from the Tracked Links canvas. All numbers, names and emails are sample data. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#155B4B}a:hover{color:#0E4337}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #176B58;outline-offset:2px}
+</style>
+</head>
+<body>
+<div style="min-height: 1106px; display: flex; flex-direction: column; background: #F6F8FA; color: #101418; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.5">
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E7EC">
+<div style="max-width: 1160px; margin: 0 auto; box-sizing: border-box; padding: 12px 24px; min-height: 70px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<a href="documents.html" style="display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 700; font-size: 18px; color: #15171A; text-decoration: none"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#176B58" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 14.5l5-5"></path><path d="M11 6.5l1.2-1.2a4 4 0 0 1 5.7 5.7l-1.2 1.2"></path><path d="M12.5 17.5l-1.2 1.2a4 4 0 0 1-5.7-5.7l1.2-1.2"></path><path d="M17 21v-2"></path><path d="M20.5 21v-4.5"></path></svg>Tracked Links</a>
+<div style="display: flex; align-items: center; gap: 8px">
+<a href="documents.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 8px; background: #E3F1ED; color: #074D40; font-weight: 600; text-decoration: none">Documents</a>
+<button aria-label="Account" style="width: 44px; height: 44px; border: 1px solid #D9DCD5; border-radius: 50%; background: #FFFFFF; color: #15171A; font: 600 14px 'Plus Jakarta Sans', system-ui, sans-serif; cursor: pointer">CD</button>
+</div>
+</div>
+</header>
+<div style="width: 100%; max-width: 1160px; margin: 0 auto; box-sizing: border-box; padding: 12px 24px 0; min-height: 68px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<span style="font-weight: 500; font-size: 14px; color: #4A5460"><a href="documents.html" style="color: #4A5460; text-decoration: none">Documents</a> / <a href="document-analytics.html" style="color: #4A5460; text-decoration: none">Resume and projects.pdf</a> / New link</span>
+</div>
+<main style="flex: 1 0 auto; width: 100%; box-sizing: border-box; max-width: 1160px; margin: 0 auto; padding: 40px 24px 56px; display: flex; flex-wrap: wrap; align-items: flex-start; align-content: flex-start; gap: 32px">
+<form style="flex: 5 1 480px; min-width: 0; box-sizing: border-box; background: #FFFFFF; border: 1px solid #E3E7EC; border-radius: 12px; padding: 28px; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 style="margin: 0; font-weight: 600; font-size: 32px; line-height: 1.25">A new link</h1>
+<p style="margin: 0; color: #4A5460">One link per place you share the document, so you can tell the readers apart.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="link-label" style="font-weight: 600; font-size: 14px">Label</label>
+<input id="link-label" type="text" value="TCS application" style="box-sizing: border-box; width: 100%; min-height: 52px; padding: 0 16px; border: 1px solid #C5CCD6; border-radius: 8px; background: #FFFFFF; color: #101418; font: 400 17px 'Plus Jakarta Sans', system-ui, sans-serif">
+<span style="color: #4A5460; font-size: 13px">Only you see this. Name it after where you will share it.</span>
+</div>
+<fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; border-bottom: 1px solid #C5CCD6">
+<legend style="padding: 0 0 10px; font-weight: 600; font-size: 20px">Access</legend>
+<div style="display: flex; align-items: flex-start; gap: 14px; padding: 18px 0; border-top: 1px solid #C5CCD6">
+<input id="opt-email" type="checkbox" checked style="flex: none; width: 22px; height: 22px; margin: 2px 0 0; accent-color: #101418">
+<label for="opt-email" style="display: flex; flex-direction: column; gap: 2px; min-height: 44px"><span style="font-weight: 600">Ask for an email before viewing</span><span style="color: #4A5460; font-size: 14px">You will see who opened the link, not only that it was opened.</span></label>
+</div>
+<div style="display: flex; align-items: flex-start; gap: 14px; padding: 18px 0; border-top: 1px solid #C5CCD6">
+<input id="opt-password" type="checkbox" style="flex: none; width: 22px; height: 22px; margin: 2px 0 0; accent-color: #101418">
+<label for="opt-password" style="display: flex; flex-direction: column; gap: 2px; min-height: 44px"><span style="font-weight: 600">Protect with a password</span><span style="color: #4A5460; font-size: 14px">Viewers must enter it to open the document.</span></label>
+</div>
+<div style="display: flex; align-items: flex-start; gap: 14px; padding: 18px 0; border-top: 1px solid #C5CCD6">
+<input id="opt-download" type="checkbox" style="flex: none; width: 22px; height: 22px; margin: 2px 0 0; accent-color: #101418">
+<label for="opt-download" style="display: flex; flex-direction: column; gap: 2px; min-height: 44px"><span style="font-weight: 600">Allow download</span><span style="color: #4A5460; font-size: 14px">Turning this off hides the button. It cannot stop screenshots.</span></label>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 0; border-top: 1px solid #C5CCD6">
+<label for="opt-expiry" style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Expires on</span><span style="color: #4A5460; font-size: 14px">Leave empty to keep the link open until you switch it off.</span></label>
+<input id="opt-expiry" type="date" value="2026-11-30" style="box-sizing: border-box; min-height: 48px; padding: 0 14px; border: 1px solid #C5CCD6; border-radius: 8px; background: #FFFFFF; color: #101418; font: 400 15px 'Plus Jakarta Sans', system-ui, sans-serif">
+</div>
+</fieldset>
+<div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px">
+<a href="document-analytics.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border: 1px solid #101418; border-radius: 8px; background: #FFFFFF; color: #101418; font-weight: 600; font-size: 14px; text-decoration: none">Cancel</a>
+<a href="link-views.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 8px; background: #176B58; color: #FFFFFF; font-weight: 600; font-size: 14px; text-decoration: none">Create link</a>
+</div>
+</form>
+<aside style="flex: 2 1 300px; min-width: 0; box-sizing: border-box; background: #EDF5F3; border: 1px solid #CFE3DC; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px">
+<span style="color: #4A5460; font-size: 14px">After you create it, the link is ready to copy</span>
+<span style="overflow-wrap: anywhere">[YOUR DOMAIN]/v/k3Xp9aQm2Z</span>
+<button style="min-height: 44px; padding: 0 18px; border: 1px solid #101418; border-radius: 8px; background: #FFFFFF; color: #101418; font: 600 14px 'Plus Jakarta Sans', system-ui, sans-serif; cursor: pointer">Copy</button>
+</aside>
+</main>
+<footer style="background: #FFFFFF; border-top: 1px solid #E3E7EC">
+<div style="max-width: 1160px; margin: 0 auto; box-sizing: border-box; padding: 16px 24px; min-height: 76px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<span style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 14px"><span style="font-weight: 600; font-size: 13px; color: #155B4B">Tracked Links</span><span style="font-size: 12px; color: #4A5460">A project by Chinmay Dubey</span></span>
+<nav style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px"><a href="#help" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; color: #4A5460; text-decoration: none">Help</a><a href="#privacy" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; color: #4A5460; text-decoration: none">Privacy</a><a href="#terms" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; color: #4A5460; text-decoration: none">Terms</a></nav>
+</div>
+</footer>
+</div>
+</body>
+</html>

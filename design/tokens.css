@@ -1,0 +1,72 @@
+/* Tracked Links design tokens. Same values as tokens.json. */
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --text-display: 54px;   /* landing hero, 800 */
+  --text-section: 36px;   /* landing sections, 800 */
+  --text-page-title: 32px;/* app headlines, 600 */
+  --text-stat: 28px;
+  --text-stat-lg: 24px;
+  --text-card-title: 20px;
+  --text-brand: 18px;
+  --text-landing: 16px;
+  --text-body: 15px;
+  --text-small: 14px;
+  --text-caption: 13px;
+  --text-micro: 12px;
+
+  --color-ink: #101418;
+  --color-ink-strong: #15171A;
+  --color-muted: #4A5460;
+  --color-surface: #FFFFFF;
+  --color-page: #F6F8FA;
+  --color-viewer-backdrop: #E6E9EE;
+  --color-table-header: #EDF1F5;
+  --color-rule: #E3E7EC;
+  --color-rule-strong: #C5CCD6;
+  --color-input-border: #C5CCD6;
+  --color-checkbox-border: #8A94A0;
+
+  --color-brand: #176B58;
+  --color-brand-text: #155B4B;
+  --color-brand-hover: #0E4337;
+  --color-brand-deep: #123C33;
+  --color-brand-deep-raised: #1A4B40;
+  --color-brand-deep-border: #3F6E62;
+  --color-brand-tint: #EDF5F3;
+  --color-brand-tint-strong: #E3F1ED;
+  --color-brand-tint-border: #CFE3DC;
+  --color-brand-dashed: #9CC4B8;
+  --color-brand-on-tint: #074D40;
+  --color-on-dark-muted: #D7E6E0;
+  --color-on-dark-faint: #B5CFC4;
+
+  --color-heat: #D9402B;
+  --color-heat-1: #FCF1EF;
+  --color-heat-2: #F7D8D3;
+  --color-heat-3: #F1B9AF;
+  --color-heat-4: #E98D7F;
+  --color-accent-link: #B5301D;
+
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-card-lg: 16px;
+  --radius-pill: 999px;
+
+  --container-max: 1160px;
+  --gutter: 24px;
+  --top-bar-height: 70px;
+  --touch-target: 44px;
+
+  --shadow-preview: 0 24px 60px rgba(0, 0, 0, 0.3);
+  --shadow-paper: 0 2px 8px rgba(16, 20, 24, 0.08);
+  --shadow-floating-page: 0 12px 28px rgba(16, 20, 24, 0.1);
+  --shadow-toolbar: 0 1px 4px rgba(16, 20, 24, 0.12);
+}
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}

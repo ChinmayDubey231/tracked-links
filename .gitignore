@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+*.log
+.env
+.env.local
+.env.*.local
+# Local-disk storage used in development
+server/storage/
+server/storage-test/
+.DS_Store
+Thumbs.db

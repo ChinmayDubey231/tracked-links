@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Link views | Tracked Links design reference</title>
+    <!-- Static design reference exported from the Tracked Links canvas. All numbers, names and emails are sample data. -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap"
+    />
+    <style>
+      body {
+        margin: 0;
+      }
+      a {
+        color: #155b4b;
+      }
+      a:hover {
+        color: #0e4337;
+      }
+      a:focus-visible,
+      button:focus-visible,
+      input:focus-visible {
+        outline: 2px solid #176b58;
+        outline-offset: 2px;
+      }
+      .row:hover {
+        background: #f6f8fa;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      style="
+        min-height: 1148px;
+        display: flex;
+        flex-direction: column;
+        background: #f6f8fa;
+        color: #101418;
+        font-family: &quot;Plus Jakarta Sans&quot;, system-ui, sans-serif;
+        font-size: 15px;
+        line-height: 1.5;
+      "
+    >
+      <header style="background: #ffffff; border-bottom: 1px solid #e3e7ec">
+        <div
+          style="
+            max-width: 1160px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            padding: 12px 24px;
+            min-height: 70px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+          "
+        >
+          <a
+            href="documents.html"
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 10px;
+              min-height: 44px;
+              font-weight: 700;
+              font-size: 18px;
+              color: #15171a;
+              text-decoration: none;
+            "
+            ><svg
+              aria-hidden="true"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#176B58"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M9.5 14.5l5-5"></path>
+              <path d="M11 6.5l1.2-1.2a4 4 0 0 1 5.7 5.7l-1.2 1.2"></path>
+              <path d="M12.5 17.5l-1.2 1.2a4 4 0 0 1-5.7-5.7l1.2-1.2"></path>
+              <path d="M17 21v-2"></path>
+              <path d="M20.5 21v-4.5"></path></svg
+            >Tracked Links</a
+          >
+          <div style="display: flex; align-items: center; gap: 8px">
+            <a
+              href="documents.html"
+              style="
+                display: inline-flex;
+                align-items: center;
+                min-height: 44px;
+                padding: 0 14px;
+                border-radius: 8px;
+                background: #e3f1ed;
+                color: #074d40;
+                font-weight: 600;
+                text-decoration: none;
+              "
+              >Documents</a
+            >
+            <button
+              aria-label="Account"
+              style="
+                width: 44px;
+                height: 44px;
+                border: 1px solid #d9dcd5;
+                border-radius: 50%;
+                background: #ffffff;
+                color: #15171a;
+                font:
+                  600 14px &quot;Plus Jakarta Sans&quot;,
+                  system-ui,
+                  sans-serif;
+                cursor: pointer;
+              "
+            >
+              CD
+            </button>
+          </div>
+        </div>
+      </header>
+      <div
+        style="
+          width: 100%;
+          max-width: 1160px;
+          margin: 0 auto;
+          box-sizing: border-box;
+          padding: 12px 24px 0;
+          min-height: 68px;
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+        "
+      >
+        <span style="font-weight: 500; font-size: 14px; color: #4a5460"
+          ><a
+            href="documents.html"
+            style="color: #4a5460; text-decoration: none"
+            >Documents</a
+          >
+          /
+          <a
+            href="document-analytics.html"
+            style="color: #4a5460; text-decoration: none"
+            >Resume and projects.pdf</a
+          >
+          / TCS application</span
+        >
+        <div
+          style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px"
+        >
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              min-height: 44px;
+              padding: 0 12px;
+              border-radius: 8px;
+              background: #e9f3ef;
+            "
+          >
+            <input
+              id="link-active"
+              type="checkbox"
+              checked
+              style="
+                width: 22px;
+                height: 22px;
+                margin: 0;
+                accent-color: #101418;
+              "
+            />
+            <label
+              for="link-active"
+              style="font-weight: 600; font-size: 13px; color: #155b4b"
+              >Link is on</label
+            >
+          </div>
+          <button
+            style="
+              min-height: 44px;
+              padding: 0 18px;
+              border: 1px solid #101418;
+              border-radius: 8px;
+              background: #ffffff;
+              color: #101418;
+              font:
+                600 14px &quot;Plus Jakarta Sans&quot;,
+                system-ui,
+                sans-serif;
+              cursor: pointer;
+            "
+          >
+            Edit settings
+          </button>
+        </div>
+      </div>
+      <main
+        style="
+          flex: 1 0 auto;
+          width: 100%;
+          box-sizing: border-box;
+          max-width: 1160px;
+          margin: 0 auto;
+          padding: 36px 24px 56px;
+          display: flex;
+          flex-direction: column;
+          gap: 28px;
+        "
+      >
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <h1
+            style="
+              margin: 0;
+              font-weight: 600;
+              font-size: 32px;
+              line-height: 1.25;
+              text-wrap: balance;
+            "
+          >
+            Nine views from six people.
+          </h1>
+          <div
+            style="
+              display: flex;
+              flex-wrap: wrap;
+              align-items: center;
+              gap: 12px;
+            "
+          >
+            <span style="font-size: 14px; overflow-wrap: anywhere"
+              >[YOUR DOMAIN]/v/k3Xp9aQm2Z</span
+            >
+            <button
+              style="
+                min-height: 44px;
+                padding: 0 18px;
+                border: 1px solid #101418;
+                border-radius: 8px;
+                background: #ffffff;
+                color: #101418;
+                font:
+                  600 14px &quot;Plus Jakarta Sans&quot;,
+                  system-ui,
+                  sans-serif;
+                cursor: pointer;
+              "
+            >
+              Copy link
+            </button>
+          </div>
+          <p style="margin: 0; color: #4a5460">
+            Email required, no password, download off, expires 30 Nov 2026.
+          </p>
+        </div>
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(
+              auto-fit,
+              minmax(min(220px, 100%), 1fr)
+            );
+            gap: 16px;
+          "
+        >
+          <div
+            style="
+              background: #ffffff;
+              border: 1px solid #e3e7ec;
+              border-radius: 12px;
+              padding: 24px;
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
+            "
+          >
+            <span style="font-weight: 600; font-size: 28px; line-height: 1.25"
+              >2m 05s</span
+            ><span style="color: #4a5460; font-size: 14px"
+              >average reading time</span
+            >
+          </div>
+          <div
+            style="
+              background: #ffffff;
+              border: 1px solid #e3e7ec;
+              border-radius: 12px;
+              padding: 24px;
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
+            "
+          >
+            <span style="font-weight: 600; font-size: 28px; line-height: 1.25"
+              >5 of 9</span
+            ><span style="color: #4a5460; font-size: 14px"
+              >views reached the last page</span
+            >
+          </div>
+          <div
+            style="
+              background: #ffffff;
+              border: 1px solid #e3e7ec;
+              border-radius: 12px;
+              padding: 24px;
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
+            "
+          >
+            <span style="font-weight: 600; font-size: 28px; line-height: 1.25"
+              >2 hours ago</span
+            ><span style="color: #4a5460; font-size: 14px">last opened</span>
+          </div>
+        </div>
+        <section
+          style="
+            background: #ffffff;
+            border: 1px solid #e3e7ec;
+            border-radius: 12px;
+            overflow-x: auto;
+          "
+        >
+          <div style="min-width: 760px">
+            <div
+              style="
+                display: grid;
+                grid-template-columns: minmax(0, 1.1fr) minmax(0, 2.4fr) minmax(
+                    0,
+                    1fr
+                  ) minmax(0, 0.9fr) minmax(0, 1.5fr);
+                gap: 16px;
+                padding: 14px 16px;
+                background: #edf1f5;
+                color: #4a5460;
+                font-size: 14px;
+              "
+            >
+              <span>Opened</span>
+              <span>Viewer</span>
+              <span>Pages reached</span>
+              <span style="text-align: right">Duration</span>
+              <span>Device</span>
+            </div>
+
+            <div
+              class="row"
+              style="
+                display: grid;
+                grid-template-columns: minmax(0, 1.1fr) minmax(0, 2.4fr) minmax(
+                    0,
+                    1fr
+                  ) minmax(0, 0.9fr) minmax(0, 1.5fr);
+                gap: 16px;
+                align-items: center;
+                min-height: 68px;
+                padding: 6px 16px;
+                box-sizing: border-box;
+                border-top: 1px solid #c5ccd6;
+                font-variant-numeric: tabular-nums;
+              "
+            >
+              <span>Today, 11:42</span>
+              <span style="font-weight: 600; overflow-wrap: anywhere"
+                >priya.s@example.com</span
+              >
+              <span style="display: flex; align-items: center; gap: 10px">
+                <span aria-hidden="true" style="display: flex; gap: 3px">
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                </span>
+                <span style="color: #4a5460; font-size: 14px">4 of 4</span>
+              </span>
+              <span style="text-align: right; font-weight: 600; font-size: 22px"
+                >3m 10s</span
+              >
+              <span style="color: #4a5460">Desktop, Chrome, Windows</span>
+            </div>
+
+            <div
+              class="row"
+              style="
+                display: grid;
+                grid-template-columns: minmax(0, 1.1fr) minmax(0, 2.4fr) minmax(
+                    0,
+                    1fr
+                  ) minmax(0, 0.9fr) minmax(0, 1.5fr);
+                gap: 16px;
+                align-items: center;
+                min-height: 68px;
+                padding: 6px 16px;
+                box-sizing: border-box;
+                border-top: 1px solid #c5ccd6;
+                font-variant-numeric: tabular-nums;
+              "
+            >
+              <span>Today, 09:15</span>
+              <span style="font-weight: 600; overflow-wrap: anywhere"
+                >a.verma@example.com</span
+              >
+              <span style="display: flex; align-items: center; gap: 10px">
+                <span aria-hidden="true" style="display: flex; gap: 3px">
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                  <span
+                    style="
+                      width: 9px;
+                      height: 13px;
+                      background: #ffffff;
+                      border: 1px solid #8a94a0;
+                      box-sizing: border-box;
+                    "
+                  ></span>
+                </span>
+                <span style="color: #4a5460; font-size: 14px">3 of 4</span>
+              </span>
+              <span style="text-align: right; font-weight: 600; font-size: 22px"
+                >1m 48s</span
+              >
+              <span style="color: #4a5460">Mobile, Safari, iOS</span>
+            </div>
+
+            <div
+              class="row"
+              style="
+                display: grid;
+                grid-template-columns: minmax(0, 1.1fr) minmax(0, 2.4fr) minmax(
+                    0,
+                    1fr
+                  ) minmax(0, 0.9fr) minmax(0, 1.5fr);
+                gap: 16px;
+                align-items: center;
+                min-height: 68px;
+                padding: 6px 16px;
+                box-sizing: border-box;
+                border-top: 1px solid #c5ccd6;
+                font-variant-numeric: tabular-nums;
+              "
+            >
+              <span>Yesterday, 18:30</span>
+              <span style="font-weight: 600; overflow-wrap: anywhere"
+                >priya.s@example.com</span
+              >
+              <span style="display: flex; align-items: center; gap: 10px">
+                <span aria-hidden="true" style="display: flex; gap: 3px">
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                  <span
+                    style="
+                      width: 9px;
+                      height: 13px;
+                      background: #ffffff;
+                      border: 1px solid #8a94a0;
+                      box-sizing: border-box;
+                    "
+                  ></span>
+                  <span
+                    style="
+                      width: 9px;
+                      height: 13px;
+                      background: #ffffff;
+                      border: 1px solid #8a94a0;
+                      box-sizing: border-box;
+                    "
+                  ></span>
+                </span>
+                <span style="color: #4a5460; font-size: 14px">2 of 4</span>
+              </span>
+              <span style="text-align: right; font-weight: 600; font-size: 22px"
+                >0m 41s</span
+              >
+              <span style="color: #4a5460">Desktop, Chrome, Windows</span>
+            </div>
+
+            <div
+              class="row"
+              style="
+                display: grid;
+                grid-template-columns: minmax(0, 1.1fr) minmax(0, 2.4fr) minmax(
+                    0,
+                    1fr
+                  ) minmax(0, 0.9fr) minmax(0, 1.5fr);
+                gap: 16px;
+                align-items: center;
+                min-height: 68px;
+                padding: 6px 16px;
+                box-sizing: border-box;
+                border-top: 1px solid #c5ccd6;
+                font-variant-numeric: tabular-nums;
+              "
+            >
+              <span>9 Nov, 14:05</span>
+              <span style="font-weight: 600; overflow-wrap: anywhere"
+                >r.nair@example.com</span
+              >
+              <span style="display: flex; align-items: center; gap: 10px">
+                <span aria-hidden="true" style="display: flex; gap: 3px">
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                </span>
+                <span style="color: #4a5460; font-size: 14px">4 of 4</span>
+              </span>
+              <span style="text-align: right; font-weight: 600; font-size: 22px"
+                >2m 52s</span
+              >
+              <span style="color: #4a5460">Desktop, Edge, Windows</span>
+            </div>
+
+            <div
+              class="row"
+              style="
+                display: grid;
+                grid-template-columns: minmax(0, 1.1fr) minmax(0, 2.4fr) minmax(
+                    0,
+                    1fr
+                  ) minmax(0, 0.9fr) minmax(0, 1.5fr);
+                gap: 16px;
+                align-items: center;
+                min-height: 68px;
+                padding: 6px 16px;
+                box-sizing: border-box;
+                border-top: 1px solid #c5ccd6;
+                font-variant-numeric: tabular-nums;
+              "
+            >
+              <span>8 Nov, 10:20</span>
+              <span style="font-weight: 600; overflow-wrap: anywhere"
+                >hiring@example.com</span
+              >
+              <span style="display: flex; align-items: center; gap: 10px">
+                <span aria-hidden="true" style="display: flex; gap: 3px">
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                </span>
+                <span style="color: #4a5460; font-size: 14px">4 of 4</span>
+              </span>
+              <span style="text-align: right; font-weight: 600; font-size: 22px"
+                >2m 30s</span
+              >
+              <span style="color: #4a5460">Desktop, Chrome, macOS</span>
+            </div>
+
+            <div
+              class="row"
+              style="
+                display: grid;
+                grid-template-columns: minmax(0, 1.1fr) minmax(0, 2.4fr) minmax(
+                    0,
+                    1fr
+                  ) minmax(0, 0.9fr) minmax(0, 1.5fr);
+                gap: 16px;
+                align-items: center;
+                min-height: 68px;
+                padding: 6px 16px;
+                box-sizing: border-box;
+                border-top: 1px solid #c5ccd6;
+                font-variant-numeric: tabular-nums;
+              "
+            >
+              <span>7 Nov, 16:48</span>
+              <span style="font-weight: 600; overflow-wrap: anywhere"
+                >a.verma@example.com</span
+              >
+              <span style="display: flex; align-items: center; gap: 10px">
+                <span aria-hidden="true" style="display: flex; gap: 3px">
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                  <span
+                    style="width: 9px; height: 13px; background: #d9402b"
+                  ></span>
+                  <span
+                    style="
+                      width: 9px;
+                      height: 13px;
+                      background: #ffffff;
+                      border: 1px solid #8a94a0;
+                      box-sizing: border-box;
+                    "
+                  ></span>
+                  <span
+                    style="
+                      width: 9px;
+                      height: 13px;
+                      background: #ffffff;
+                      border: 1px solid #8a94a0;
+                      box-sizing: border-box;
+                    "
+                  ></span>
+                </span>
+                <span style="color: #4a5460; font-size: 14px">2 of 4</span>
+              </span>
+              <span style="text-align: right; font-weight: 600; font-size: 22px"
+                >1m 24s</span
+              >
+              <span style="color: #4a5460">Mobile, Chrome, Android</span>
+            </div>
+          </div>
+        </section>
+        <div
+          style="
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+          "
+        >
+          <span style="color: #4a5460; font-size: 14px"
+            >Showing 6 of 9 views. Each small page is one page of the document;
+            filled means it was reached.</span
+          >
+          <button
+            style="
+              min-height: 44px;
+              padding: 0 18px;
+              border: 1px solid #101418;
+              border-radius: 8px;
+              background: #ffffff;
+              color: #101418;
+              font:
+                600 14px &quot;Plus Jakarta Sans&quot;,
+                system-ui,
+                sans-serif;
+              cursor: pointer;
+            "
+          >
+            Show all
+          </button>
+        </div>
+      </main>
+      <footer style="background: #ffffff; border-top: 1px solid #e3e7ec">
+        <div
+          style="
+            max-width: 1160px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            padding: 16px 24px;
+            min-height: 76px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+          "
+        >
+          <span
+            style="
+              display: flex;
+              flex-wrap: wrap;
+              align-items: baseline;
+              gap: 14px;
+            "
+            ><span style="font-weight: 600; font-size: 13px; color: #155b4b"
+              >Tracked Links</span
+            ><span style="font-size: 12px; color: #4a5460"
+              >A project by Chinmay Dubey</span
+            ></span
+          >
+          <nav
+            style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px"
+          >
+            <a
+              href="#help"
+              style="
+                display: inline-flex;
+                align-items: center;
+                min-height: 44px;
+                padding: 0 8px;
+                color: #4a5460;
+                text-decoration: none;
+              "
+              >Help</a
+            ><a
+              href="#privacy"
+              style="
+                display: inline-flex;
+                align-items: center;
+                min-height: 44px;
+                padding: 0 8px;
+                color: #4a5460;
+                text-decoration: none;
+              "
+              >Privacy</a
+            ><a
+              href="#terms"
+              style="
+                display: inline-flex;
+                align-items: center;
+                min-height: 44px;
+                padding: 0 8px;
+                color: #4a5460;
+                text-decoration: none;
+              "
+              >Terms</a
+            >
+          </nav>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

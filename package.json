@@ -1,0 +1,23 @@
+{
+  "name": "tracked-links",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Upload a PDF, create a tracked share link for each place you send it, and see how each link gets read.",
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n server,client -c green,cyan \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build -w server && npm run build -w client",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.7"
+  }
+}
