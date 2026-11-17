@@ -1,0 +1,138 @@
+/*
+ * Tracked Links design tokens, from design/tokens.css and design/tokens.json.
+ * The font itself is loaded in index.html.
+ */
+:root {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Landing page view log and code labels. */
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
+  /* Type scale */
+  /* Landing hero, 800. Design canvas "Landing page, geometric": 48px up to 88px. */
+  --text-display: clamp(48px, 7vw, 88px);
+  --text-section: 44px;    /* landing sections, 800 */
+  --text-auth-title: 40px; /* log in / sign up */
+  --text-page-title: 32px; /* app headlines, 600 */
+  --text-stat: 28px;
+  --text-stat-lg: 24px;
+  --text-card-title: 20px;
+  --text-brand: 18px;
+  --text-landing: 16px;
+  --text-body: 15px;
+  --text-small: 14px;
+  --text-caption: 13px;
+  --text-micro: 12px;
+
+  --leading-tight: 1.2;
+  --leading-title: 1.25;
+  --leading-body: 1.5;
+
+  /* Colour */
+  --color-ink: #101418;
+  --color-ink-strong: #15171A;
+  --color-muted: #4A5460;
+  --color-surface: #FFFFFF;
+  --color-page: #F6F8FA;
+  --color-viewer-backdrop: #E6E9EE;
+  --color-table-header: #EDF1F5;
+  --color-rule: #E3E7EC;
+  --color-rule-strong: #C5CCD6;
+  /* Figma: top bar border and account button. */
+  --color-rule-bar: #D9DCD5;
+  /* Figma: text inputs (Log in). Darker than design/tokens.css's #C5CCD6. */
+  --color-input-border: #ADB9C6;
+  /* Figma: landing page Log in button border. */
+  --color-brand-outline: #B9CEC5;
+  --color-checkbox-border: #8A94A0;
+
+  --color-brand: #176B58;
+  --color-brand-text: #155B4B;
+  --color-brand-hover: #0E4337;
+  --color-brand-deep: #123C33;
+  --color-brand-deep-raised: #1A4B40;
+  --color-brand-deep-border: #3F6E62;
+  --color-brand-tint: #EDF5F3;
+  --color-brand-tint-strong: #E3F1ED;
+  --color-brand-tint-soft: #E9F3EF;
+  --color-brand-tint-border: #CFE3DC;
+  --color-brand-dashed: #9CC4B8;
+  --color-brand-on-tint: #074D40;
+  --color-on-dark: #F2F4F7;
+  --color-on-dark-muted: #D7E6E0;
+  --color-on-dark-faint: #B5CFC4;
+  /* Highlight on dark green: Log in headline, view log events. 8:1 on brand-deep. */
+  --color-on-dark-accent: #9FE3C9;
+  /* Heat red on dark green (view log). 6.4:1 on brand-deep. */
+  --color-on-dark-heat: #F3A99C;
+  /* View log line numbers. The canvas's #7FA597 is 4.49:1 on brand-deep; this passes 4.5:1. */
+  --color-on-dark-dim: #85AB9D;
+  /* Decorative stepped bars in the landing closing band. */
+  --color-brand-geo-light: #2E8A72;
+  --color-brand-geo-dark: #1D6E5A;
+
+  --color-heat: #D9402B;
+  --color-heat-1: #FCF1EF;
+  --color-heat-2: #F7D8D3;
+  --color-heat-3: #F1B9AF;
+  --color-heat-4: #E98D7F;
+  --color-accent-link: #B5301D;
+  --color-accent-link-hover: #8A2314;
+  /* Error text and borders reuse the accent red: 6:1 on white. */
+  --color-error: #B5301D;
+  --color-error-tint: #FCF1EF;
+
+  --color-thumb-line: #B7C0C5;
+  --color-thumb-heading: #16392F;
+
+  /* Radii */
+  --radius-control: 8px;
+  --radius-tile: 10px;
+  --radius-card: 12px;
+  --radius-card-lg: 16px;
+  --radius-pill: 999px;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-18: 72px;
+
+  /* Layout */
+  /* Side margin of every page. Figma: 60px on desktop. Content fills the rest of the width. */
+  --gutter: 60px;
+  /* Figma: 72, 72 and 80 on every owner screen. */
+  --top-bar-height: 72px;
+  --sub-header-height: 72px;
+  --footer-height: 80px;
+  --touch-target: 44px;
+  --control-height-lg: 48px;
+  --input-height: 52px;
+
+  /* Shadows */
+  /* Figma: landing preview window. */
+  --shadow-preview: 0 12px 32px rgba(0, 0, 0, 0.14);
+  --shadow-paper: 0 2px 8px rgba(16, 20, 24, 0.08);
+  --shadow-floating-page: 0 12px 28px rgba(16, 20, 24, 0.1);
+  --shadow-toolbar: 0 1px 4px rgba(16, 20, 24, 0.12);
+  --shadow-menu: 0 12px 28px rgba(16, 20, 24, 0.14);
+}
+
+@media (max-width: 1024px) {
+  :root {
+    --gutter: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --gutter: 16px;
+  }
+}
