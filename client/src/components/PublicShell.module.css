@@ -1,0 +1,108 @@
+.shell {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-page);
+}
+
+.header {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.inner {
+  min-height: var(--top-bar-height);
+  padding-top: var(--space-3);
+  padding-bottom: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--touch-target);
+  font-weight: 700;
+  font-size: var(--text-brand);
+  color: var(--color-ink-strong);
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: var(--color-ink-strong);
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.textLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  color: var(--color-ink);
+  font-weight: 600;
+  font-size: var(--text-small);
+  text-decoration: none;
+}
+
+.textLink:hover {
+  color: var(--color-brand-text);
+  text-decoration: underline;
+}
+
+.main {
+  flex: 1 0 auto;
+  padding-top: var(--space-10);
+  padding-bottom: var(--space-14);
+}
+
+.main:focus {
+  outline: none;
+}
+
+/* Prose for Help, Privacy and Terms */
+
+.prose {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.prose h1 {
+  font-weight: 600;
+  font-size: var(--text-page-title);
+  line-height: var(--leading-title);
+}
+
+.prose h2 {
+  margin-top: var(--space-4);
+  font-weight: 600;
+  font-size: var(--text-card-title);
+}
+
+.prose p,
+.prose li {
+  color: var(--color-muted);
+}
+
+.prose ul {
+  margin: 0;
+  padding-left: 1.25em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.prose strong {
+  color: var(--color-ink);
+}

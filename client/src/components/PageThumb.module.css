@@ -1,0 +1,58 @@
+.thumb {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1.414;
+  background: var(--color-surface);
+  border: 1px solid var(--color-rule-strong);
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: top center;
+}
+
+.content {
+  position: absolute;
+  inset: 0;
+}
+
+/* Multiply keeps the page's text readable under the red. */
+.heat {
+  position: absolute;
+  inset: 0;
+  background: var(--color-heat);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* Generic page drawn with lines, for documents without a rendered image. */
+.placeholder {
+  position: absolute;
+  inset: 0;
+  padding: 14% 12%;
+  display: flex;
+  flex-direction: column;
+  gap: 7%;
+}
+
+.placeholder span {
+  display: block;
+  height: 3%;
+  min-height: 2px;
+  background: var(--color-thumb-line);
+}
+
+.placeholder .heading {
+  height: 5%;
+  min-height: 3px;
+  width: 55%;
+  background: var(--color-thumb-heading);
+}
+
+.placeholder .accent {
+  width: 32%;
+  background: var(--color-brand);
+}

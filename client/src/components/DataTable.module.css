@@ -1,0 +1,125 @@
+/* Figma: white card, rounded, with only a bottom border. */
+.card {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-rule);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+/* Wide tables scroll sideways inside the card on phones. */
+.scroller {
+  overflow-x: auto;
+}
+
+.scroller:focus-visible {
+  outline-offset: -2px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th {
+  background: var(--color-table-header);
+  color: var(--color-muted);
+  font-size: var(--text-small);
+  font-weight: 400;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table th,
+.table td {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.table th:first-child,
+.table td:first-child {
+  padding-left: var(--space-5);
+}
+
+.table th:last-child,
+.table td:last-child {
+  padding-right: var(--space-5);
+}
+
+.relaxed th {
+  padding-top: var(--space-3);
+  padding-bottom: var(--space-3);
+}
+
+.relaxed td {
+  padding-top: var(--space-5);
+  padding-bottom: var(--space-5);
+}
+
+.regular th {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.regular td {
+  height: 68px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.regular th:first-child,
+.regular td:first-child {
+  padding-left: var(--space-4);
+}
+
+.regular th:last-child,
+.regular td:last-child {
+  padding-right: var(--space-4);
+}
+
+.row td {
+  border-top: 1px solid var(--color-rule);
+  vertical-align: middle;
+}
+
+.regular .row td {
+  border-top-color: var(--color-rule-strong);
+}
+
+.row:hover {
+  background: var(--color-page);
+}
+
+.right {
+  text-align: right !important;
+}
+
+/* Whole-row links: the link in one cell stretches over the row. */
+.linkRow {
+  position: relative;
+  cursor: pointer;
+}
+
+.rowLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.rowLink:hover {
+  color: inherit;
+}
+
+.rowLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.rowLink:focus-visible {
+  outline: none;
+}
+
+.rowLink:focus-visible::after {
+  outline: 2px solid var(--color-brand);
+  outline-offset: -2px;
+}
