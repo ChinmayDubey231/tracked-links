@@ -1,0 +1,70 @@
+/* ReachBar: 3px bar under a page thumbnail */
+.reachTrack {
+  display: block;
+  height: 3px;
+  margin-top: var(--space-2);
+  background: var(--color-brand-tint-strong);
+}
+
+.reachFill {
+  display: block;
+  height: 3px;
+  background: var(--color-brand);
+}
+
+/* PagesReachedMeter */
+.meter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.blocks {
+  display: flex;
+  gap: 3px;
+}
+
+.block {
+  width: 9px;
+  height: 13px;
+  border: 1px solid var(--color-checkbox-border);
+  background: var(--color-surface);
+}
+
+.reached {
+  border-color: var(--color-heat);
+  background: var(--color-heat);
+}
+
+.bar {
+  width: 64px;
+  height: 8px;
+  border: 1px solid var(--color-checkbox-border);
+  background: var(--color-surface);
+}
+
+.barFill {
+  height: 100%;
+  background: var(--color-heat);
+}
+
+.meterText {
+  color: var(--color-muted);
+  font-size: var(--text-small);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Small size (Figma: landing page "See who read what") */
+.meterSmall {
+  gap: var(--space-2);
+}
+
+.meterSmall .block {
+  width: 8px;
+  height: 11px;
+}
+
+.meterSmall .meterText {
+  font-size: var(--text-caption);
+}

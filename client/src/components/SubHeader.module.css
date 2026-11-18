@@ -1,0 +1,57 @@
+.bar {
+  min-height: var(--sub-header-height);
+  padding-top: 14px;
+  padding-bottom: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-weight: 500;
+  font-size: var(--text-small);
+  color: var(--color-muted);
+  min-width: 0;
+}
+
+.crumbs li {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.sep {
+  padding: 0 0.35em;
+}
+
+.crumbs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  color: var(--color-muted);
+  text-decoration: none;
+}
+
+.crumbs a:hover {
+  color: var(--color-ink);
+  text-decoration: underline;
+}
+
+.current {
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}

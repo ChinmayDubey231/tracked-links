@@ -1,0 +1,25 @@
+/* Positions from the Figma icon frame: each SVG at its natural size, offset for its stroke overflow. */
+
+.mark {
+  position: relative;
+  flex: none;
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.chain,
+.bars {
+  position: absolute;
+  max-width: none;
+}
+
+.chain {
+  left: 2.08px;
+  top: 2.09px;
+}
+
+.bars {
+  left: 14.1px;
+  top: 14.6px;
+}
