@@ -21,6 +21,30 @@ export const authLimiter = limiter({
   message: 'Too many attempts. Wait 15 minutes, then try again.',
 });
 
+/** Opening a shared link (POST /v/:slug/access): limits guessing link passwords. */
+export const accessLimiter = limiter({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  message: 'Too many attempts to open this document. Wait 15 minutes, then try again.',
+});
+
+/** Reading a shared link's details and asking for a download. */
+export const publicLinkLimiter = limiter({
+  windowMs: 10 * 60 * 1000,
+  limit: 120,
+  message: 'Too many requests for this document. Wait a few minutes, then try again.',
+});
+
+/**
+ * Reading-time heartbeats: one every 10 seconds per open tab. Generous, since
+ * a whole office can share one IP address.
+ */
+export const heartbeatLimiter = limiter({
+  windowMs: 10 * 60 * 1000,
+  limit: 600,
+  message: 'Too many updates. Reading time will be recorded again shortly.',
+});
+
 /** Uploads, counted per account rather than per IP. */
 export const uploadLimiter = limiter({
   windowMs: 60 * 60 * 1000,

@@ -1,20 +1,13 @@
 import bcrypt from 'bcryptjs';
 import { Router } from 'express';
 import { z } from 'zod';
-import {
-  MAX_PASSWORD_BYTES,
-  MIN_PASSWORD_LENGTH,
-  type AuthResponse,
-  type MeResponse,
-  type PublicUser,
-} from '@tracked-links/shared';
-import { config } from '../config';
+import { MIN_PASSWORD_LENGTH, type AuthResponse, type MeResponse, type PublicUser } from '@tracked-links/shared';
 import { HttpError } from '../lib/httpError';
+import { BCRYPT_ROUNDS, fitsBcrypt } from '../lib/passwords';
 import { currentUserId, requireAuth, signToken } from '../middleware/auth';
 import { authLimiter } from '../middleware/rateLimits';
 import { User } from '../models/User';
 
-const BCRYPT_ROUNDS = config.isTest ? 4 : 12;
 /** Compared against when the email is unknown, so both paths take the same time. */
 const DUMMY_HASH = bcrypt.hashSync('not-a-real-password', BCRYPT_ROUNDS);
 
@@ -28,9 +21,7 @@ const email = z
 const newPassword = z
   .string({ error: 'Enter a password.' })
   .min(MIN_PASSWORD_LENGTH, { error: `Use at least ${MIN_PASSWORD_LENGTH} characters for your password.` })
-  .refine((value) => Buffer.byteLength(value, 'utf8') <= MAX_PASSWORD_BYTES, {
-    error: 'Use a password of 72 characters or fewer.',
-  });
+  .refine(fitsBcrypt, { error: 'Use a password of 72 characters or fewer.' });
 
 const signupSchema = z.object({
   name: z

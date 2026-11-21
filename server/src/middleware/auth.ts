@@ -36,6 +36,21 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction): v
   next();
 }
 
+/**
+ * The signed-in user's id on a public route, or null. A missing, expired or bad
+ * token is ignored rather than refused, since anyone may use these routes.
+ */
+export function optionalUserId(req: Request): string | null {
+  const header = req.headers.authorization;
+  if (!header?.startsWith('Bearer ')) return null;
+  try {
+    const payload = jwt.verify(header.slice('Bearer '.length), config.JWT_SECRET, { algorithms: ['HS256'] });
+    return typeof payload === 'string' ? null : (payload.sub ?? null);
+  } catch {
+    return null;
+  }
+}
+
 /** The authenticated user's id. Only call after requireAuth. */
 export function currentUserId(req: Request): string {
   if (!req.userId) throw new HttpError(401, 'Log in to continue.', { code: 'unauthenticated' });

@@ -3,21 +3,10 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Link } from '../src/models/Link';
 import { View } from '../src/models/View';
 import { DocumentModel } from '../src/models/Document';
-import { TINY_PNG, app, makePdf, setupDatabase, signUp, teardownDatabase } from './helpers';
+import { app, makePdf, setupDatabase, signUp, teardownDatabase, uploadPdf } from './helpers';
 
 beforeAll(setupDatabase);
 afterAll(teardownDatabase);
-
-async function uploadPdf(token: string, pages = 3, title = 'Resume and projects.pdf', status = 201) {
-  const pdf = await makePdf(pages);
-  return request(app)
-    .post('/documents')
-    .set('Authorization', `Bearer ${token}`)
-    .field('title', title)
-    .attach('file', pdf, { filename: 'resume.pdf', contentType: 'application/pdf' })
-    .attach('thumbnail', TINY_PNG, { filename: 'thumb.png', contentType: 'image/png' })
-    .expect(status);
-}
 
 describe('POST /documents', () => {
   it('stores the PDF privately and counts its pages', async () => {
