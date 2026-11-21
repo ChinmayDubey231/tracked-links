@@ -7,6 +7,8 @@ import { errorHandler, notFoundHandler } from './middleware/error';
 import { authRouter } from './routes/auth';
 import { documentsRouter } from './routes/documents';
 import { filesRouter } from './routes/files';
+import { linksRouter } from './routes/links';
+import { viewerRouter, viewsRouter } from './routes/viewer';
 
 export function createApp() {
   const app = express();
@@ -33,6 +35,10 @@ export function createApp() {
   app.use('/auth', authRouter);
   app.use('/documents', documentsRouter);
   app.use('/files', filesRouter);
+  app.use('/links', linksRouter);
+  // Public: what a reader's browser calls. No account needed.
+  app.use('/v', viewerRouter);
+  app.use('/views', viewsRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

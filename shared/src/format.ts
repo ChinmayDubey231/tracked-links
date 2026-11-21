@@ -125,6 +125,39 @@ export function relativeTimeInSentence(value: DateInput, now: Date = new Date())
   return relative;
 }
 
+/**
+ * One-line summary of a link's settings, as on the Link views screen:
+ * "Email required, no password, download off, expires 30 Nov 2026."
+ */
+export function linkSettingsSummary(link: {
+  requireEmail: boolean;
+  hasPassword: boolean;
+  allowDownload: boolean;
+  expiresAt: DateInput | null;
+}): string {
+  const parts = [
+    link.requireEmail ? 'Email required' : 'No email needed',
+    link.hasPassword ? 'password set' : 'no password',
+    link.allowDownload ? 'download on' : 'download off',
+    link.expiresAt ? `expires ${formatDate(link.expiresAt)}` : 'no expiry date',
+  ];
+  return `${parts.join(', ')}.`;
+}
+
+/** The ISO instant at the end of a "YYYY-MM-DD" day in local time, or null for an empty value. */
+export function endOfDayIso(day: string): string | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day);
+  if (!match) return null;
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 23, 59, 59, 999);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+}
+
+/** "YYYY-MM-DD" in local time, for a date input's value. */
+export function toDateInputValue(value: DateInput): string {
+  const date = toDate(value);
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+}
+
 export interface DocumentsHeadlineInput {
   documents: number;
   views: number;

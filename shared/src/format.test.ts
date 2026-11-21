@@ -2,12 +2,15 @@ import { describe, expect, it } from 'vitest';
 import {
   countPhrase,
   documentsHeadline,
+  endOfDayIso,
   formatBytes,
   formatDate,
   formatDuration,
   formatSeconds,
+  linkSettingsSummary,
   numberToWords,
   relativeTime,
+  toDateInputValue,
 } from './format';
 import { heatOpacity } from './analytics';
 
@@ -130,6 +133,41 @@ describe('documentsHeadline', () => {
       now,
     );
     expect(older.subtitle).toBe('The latest view was on 28 Oct, for CV.pdf.');
+  });
+});
+
+describe('linkSettingsSummary', () => {
+  it('matches the Link views sentence', () => {
+    expect(
+      linkSettingsSummary({
+        requireEmail: true,
+        hasPassword: false,
+        allowDownload: false,
+        expiresAt: new Date(2026, 10, 30, 23, 59),
+      }),
+    ).toBe('Email required, no password, download off, expires 30 Nov 2026.');
+  });
+
+  it('covers the opposite settings', () => {
+    expect(linkSettingsSummary({ requireEmail: false, hasPassword: true, allowDownload: true, expiresAt: null })).toBe(
+      'No email needed, password set, download on, no expiry date.',
+    );
+  });
+});
+
+describe('date input helpers', () => {
+  it('turns a day into the last moment of that day, in local time', () => {
+    const iso = endOfDayIso('2026-11-30');
+    const date = new Date(iso!);
+    expect([date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes()]).toEqual([
+      2026, 10, 30, 23, 59,
+    ]);
+    expect(toDateInputValue(date)).toBe('2026-11-30');
+  });
+
+  it('rejects anything that is not a day', () => {
+    expect(endOfDayIso('')).toBeNull();
+    expect(endOfDayIso('30/11/2026')).toBeNull();
   });
 });
 

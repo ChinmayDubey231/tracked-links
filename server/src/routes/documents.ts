@@ -11,16 +11,16 @@ import {
   type SignedFileResponse,
 } from '@tracked-links/shared';
 import { cleanTitle, isPng, looksLikePdf, readPdfInfo } from '../lib/files';
-import { HttpError, notFound } from '../lib/httpError';
+import { HttpError } from '../lib/httpError';
+import { findOwnedDocument } from '../lib/owned';
+import { countedViewFilter } from '../lib/views';
 import { currentUserId, requireAuth } from '../middleware/auth';
 import { uploadLimiter } from '../middleware/rateLimits';
 import { DocumentModel } from '../models/Document';
 import { Link } from '../models/Link';
 import { View } from '../models/View';
 import { storage } from '../services/storage';
-
-/** Views that count toward analytics: some active reading time, not flagged as a bot. */
-export const countedViewFilter = { totalDurationMs: { $gt: 0 }, isBot: { $ne: true } } as const;
+import { documentLinksRouter } from './links';
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -104,14 +104,6 @@ async function serializeDocument(doc: DocumentLike, stats: DocumentStats = EMPTY
   };
 }
 
-/** Loads a document only if it belongs to the signed-in user; otherwise 404, so ids can't be probed. */
-export async function findOwnedDocument(id: string, ownerId: string) {
-  if (!Types.ObjectId.isValid(id)) throw notFound('document');
-  const doc = await DocumentModel.findOne({ _id: id, ownerId });
-  if (!doc) throw notFound('document');
-  return doc;
-}
-
 async function removeQuietly(key: string | null | undefined) {
   if (!key) return;
   try {
@@ -123,6 +115,7 @@ async function removeQuietly(key: string | null | undefined) {
 
 export const documentsRouter = Router();
 documentsRouter.use(requireAuth);
+documentsRouter.use('/:id/links', documentLinksRouter);
 
 documentsRouter.get('/', async (req, res) => {
   const ownerId = currentUserId(req);

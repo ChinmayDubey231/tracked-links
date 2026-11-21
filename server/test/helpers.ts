@@ -32,6 +32,16 @@ export const TINY_PNG = Buffer.from(
   'base64',
 );
 
+export async function uploadPdf(token: string, pages = 3, title = 'Resume and projects.pdf', status = 201) {
+  return request(app)
+    .post('/documents')
+    .set('Authorization', `Bearer ${token}`)
+    .field('title', title)
+    .attach('file', await makePdf(pages), { filename: 'resume.pdf', contentType: 'application/pdf' })
+    .attach('thumbnail', TINY_PNG, { filename: 'thumb.png', contentType: 'image/png' })
+    .expect(status);
+}
+
 let counter = 0;
 export async function signUp(overrides: Partial<{ name: string; email: string; password: string }> = {}) {
   counter += 1;
