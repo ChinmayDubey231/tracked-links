@@ -5,7 +5,10 @@ import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
 import DocumentPage from './pages/documents/DocumentPage';
 import DocumentsPage from './pages/documents/DocumentsPage';
-import { LinkViewsPlaceholder, NewLinkPlaceholder, ViewerPlaceholder } from './pages/Placeholders';
+import EditLinkPage from './pages/links/EditLinkPage';
+import LinkPage from './pages/links/LinkPage';
+import NewLinkPage from './pages/links/NewLinkPage';
+import { ViewerPlaceholder } from './pages/Placeholders';
 import { HelpPage, NotFoundPage, PrivacyPage, TermsPage } from './pages/public/InfoPages';
 import LandingPage from './pages/public/LandingPage';
 
@@ -90,8 +93,9 @@ export const router = createBrowserRouter([
         children: [
           { path: '/documents', element: <DocumentsPage /> },
           { path: '/documents/:id', element: <DocumentPage /> },
-          { path: '/documents/:id/links/new', element: <NewLinkPlaceholder /> },
-          { path: '/links/:id', element: <LinkViewsPlaceholder /> },
+          { path: '/documents/:id/links/new', element: <NewLinkPage /> },
+          { path: '/links/:id', element: <LinkPage /> },
+          { path: '/links/:id/edit', element: <EditLinkPage /> },
         ],
       },
       { path: '*', element: <NotFoundPage /> },
