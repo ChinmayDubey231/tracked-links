@@ -1,0 +1,212 @@
+/* New link, Link settings and Link screens (design/screens/new-link.html, link-views.html). */
+
+/* Form card on the left, tinted share card on the right; stacks on narrow screens. */
+.layout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-8);
+}
+
+.card {
+  flex: 5 1 480px;
+  min-width: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-card);
+  padding: var(--space-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+.cardHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.title {
+  font-weight: 600;
+  font-size: var(--text-page-title);
+  line-height: var(--leading-title);
+  overflow-wrap: anywhere;
+}
+
+.title:focus {
+  outline: none;
+}
+
+.muted {
+  color: var(--color-muted);
+}
+
+/* Access options: rows divided by rules, as in the design. */
+.options {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-rule-strong);
+  min-width: 0;
+}
+
+.legend {
+  padding: 0 0 10px;
+  font-weight: 600;
+  font-size: var(--text-card-title);
+}
+
+.option {
+  padding: 18px 0;
+  border-top: 1px solid var(--color-rule-strong);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* The password field sits under its checkbox, lined up with the label text. */
+.nested {
+  margin-left: 36px;
+  max-width: 420px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.aside {
+  flex: 2 1 300px;
+  min-width: 0;
+  background: var(--color-brand-tint);
+  border: 1px solid var(--color-brand-tint-border);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.asideLabel {
+  color: var(--color-muted);
+  font-size: var(--text-small);
+}
+
+.asideActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.url {
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+
+.urlPending {
+  overflow-wrap: anywhere;
+  color: var(--color-muted);
+}
+
+.caption {
+  color: var(--color-muted);
+  font-size: var(--text-caption);
+}
+
+/* Delete, inside the aside on Link settings */
+.danger {
+  align-self: stretch;
+  margin-top: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-brand-tint-border);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.dangerText {
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--color-error);
+}
+
+/* Nested selectors so these win over the Button's own primary colours. */
+.danger .dangerButton {
+  border-color: var(--color-error);
+  background: var(--color-error);
+}
+
+.danger .dangerButton:hover {
+  border-color: var(--color-accent-link-hover);
+  background: var(--color-accent-link-hover);
+}
+
+/* Link screen */
+
+.urlRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.notice {
+  background: var(--color-surface);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-card);
+  padding: var(--space-4) var(--space-5);
+  color: var(--color-muted);
+}
+
+/* "Link is on": a checkbox in a tinted box, as in the design */
+.switchWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.switch {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-control);
+  background: var(--color-brand-tint-soft);
+}
+
+.switchInput {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: var(--color-ink);
+  cursor: pointer;
+}
+
+.switchInput:disabled {
+  cursor: progress;
+}
+
+.switchLabel {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  font-weight: 600;
+  font-size: var(--text-small);
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: var(--space-5);
+  }
+
+  .nested {
+    margin-left: 0;
+  }
+}

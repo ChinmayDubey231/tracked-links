@@ -7,6 +7,7 @@ import { ErrorState, LoadingState } from '../../components/States';
 import { SubHeader } from '../../components/SubHeader';
 import { api, errorMessage } from '../../lib/api';
 import { usePageTitle } from '../../lib/usePageTitle';
+import { DocumentLinks } from './DocumentLinks';
 import styles from './DocumentsPage.module.css';
 
 export function useDocument(id: string | undefined) {
@@ -48,6 +49,7 @@ export default function DocumentPage() {
               {formatDate(query.data.createdAt)}.
             </p>
           </div>
+          <DocumentLinks documentId={query.data.id} />
           <p className={styles.footnote}>Page-by-page reading analytics for this document arrive in phase 3.</p>
         </>
       )}
