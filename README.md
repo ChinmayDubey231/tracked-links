@@ -2,7 +2,7 @@
 
 Upload a PDF (usually a resume), create a separate share link for each place you send it, and see how each link gets read: opens, time per page, pages reached and device. Viewers never need an account.
 
-> Build status: **phase 1 of 4 (foundations)** is done. See [Build progress](#build-progress).
+> Build status: **phases 1 and 2 of 4 (foundations, links and viewer)** are done. See [Build progress](#build-progress).
 
 ## Stack
 
@@ -90,12 +90,26 @@ Cloudflare R2 or AWS S3 work with the same variables: set `S3_ENDPOINT` to the s
 - **Auth:** passwords hashed with bcrypt (cost 12). Log-in takes the same time whether or not the email exists, and returns the same message either way. Sign-up and log-in are rate-limited per IP.
 - **Ownership:** every document route checks the owner and answers 404 for anything else, so ids can't be probed.
 - **CORS** allows only `CLIENT_ORIGIN`; secrets live in environment variables; `helmet` sets security headers.
-- **Viewer privacy** (phase 2): only a salted hash of the IP address is stored.
+- **Share links:** slugs are 10 random letters and digits. Link passwords are hashed with bcrypt, and `POST /v/:slug/access` is rate-limited per IP, so passwords can't be guessed quickly.
+- **No views from link previews:** WhatsApp, LinkedIn and Slack fetch links to build previews but don't run JavaScript. A View is only created when the viewer page calls `POST /v/:slug/access`, never by the page request.
+- **Reading time can't be faked from outside:** each View gets a token, and heartbeats without it are refused. One heartbeat adds at most two minutes.
+- **Viewer privacy:** only a salted hash of the IP address is stored. The gate and the reader both say that views and reading time are recorded, with a link to what is tracked. The owner opening their own link is not recorded.
+- **"Allow download" off** hides the button and the server issues no download URL. It is a deterrent only: the PDF is still shown, and screenshots can't be stopped.
+
+## How reading time is measured
+
+The viewer follows `docs/spec.md` section 7 (code in `client/src/pages/viewer/tracker.ts`):
+
+1. The viewer calls `POST /v/:slug/access`, which creates the View with one entry per page.
+2. An `IntersectionObserver` picks the page with the most height on screen.
+3. Every second, time goes to that page, but only while the tab is visible (Page Visibility API) and the reader has scrolled, moved the pointer or pressed a key in the last 60 seconds.
+4. Every 10 seconds a heartbeat sends the time added since the last one; the server adds it with `$inc`.
+5. When the tab is hidden or closed, `navigator.sendBeacon` sends what is left. Heartbeats go as `text/plain` so the browser can send them to the API's origin without a CORS preflight, which a beacon cannot do.
 
 ## Build progress
 
 - [x] **Phase 1, foundations:** monorepo, design tokens, shared components, sign-up / log-in with JWT, upload to private storage, Documents screen with real data and the empty state.
-- [ ] **Phase 2, links and viewer:** create, edit and switch off links; public viewer with `react-pdf`; email/password gate; access endpoint; heartbeat and beacon tracking.
+- [x] **Phase 2, links and viewer:** create, edit and switch off links; public viewer with `react-pdf`; email/password gate; access endpoint; heartbeat and beacon tracking.
 - [ ] **Phase 3, analytics:** analytics endpoint, Document analytics screen (heatmap, reach, stats, links, recent views), Link views screen.
 - [ ] **Phase 4, polish and launch:** replace file, expiry, first-open email (Resend), bot filtering, ~~landing page~~ (built early, matches `design/screens/landing.html`), deployment (Vercel + Render with keep-alive), demo GIF.
 

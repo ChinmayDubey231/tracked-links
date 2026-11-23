@@ -8,9 +8,9 @@ import DocumentsPage from './pages/documents/DocumentsPage';
 import EditLinkPage from './pages/links/EditLinkPage';
 import LinkPage from './pages/links/LinkPage';
 import NewLinkPage from './pages/links/NewLinkPage';
-import { ViewerPlaceholder } from './pages/Placeholders';
 import { HelpPage, NotFoundPage, PrivacyPage, TermsPage } from './pages/public/InfoPages';
 import LandingPage from './pages/public/LandingPage';
+import ViewerPage from './pages/viewer/ViewerPage';
 
 /**
  * After client-side navigation, move focus so keyboard and screen reader users start in the right place:
@@ -83,7 +83,7 @@ export const router = createBrowserRouter([
       { path: '/help', element: <HelpPage /> },
       { path: '/privacy', element: <PrivacyPage /> },
       { path: '/terms', element: <TermsPage /> },
-      { path: '/v/:slug', element: <ViewerPlaceholder /> },
+      { path: '/v/:slug', element: <ViewerPage /> },
       {
         element: (
           <RequireAuth>
