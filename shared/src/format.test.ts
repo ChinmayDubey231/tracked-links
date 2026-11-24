@@ -1,14 +1,23 @@
 import { describe, expect, it } from 'vitest';
 import {
   countPhrase,
+  dayAndTime,
+  deviceLabel,
   documentsHeadline,
   endOfDayIso,
   formatBytes,
   formatDate,
   formatDuration,
+  formatPercent,
   formatSeconds,
+  latestViewSentence,
   linkSettingsSummary,
+  notOpenedDetail,
+  notOpenedNudge,
   numberToWords,
+  openedAt,
+  pagesReadPhrase,
+  recentWhen,
   relativeTime,
   toDateInputValue,
 } from './format';
@@ -168,6 +177,79 @@ describe('date input helpers', () => {
   it('rejects anything that is not a day', () => {
     expect(endOfDayIso('')).toBeNull();
     expect(endOfDayIso('30/11/2026')).toBeNull();
+  });
+});
+
+describe('view times', () => {
+  const now = new Date(2026, 10, 12, 14, 0);
+
+  it('formats the Opened column', () => {
+    expect(openedAt(new Date(2026, 10, 12, 11, 42), now)).toBe('Today, 11:42');
+    expect(openedAt(new Date(2026, 10, 11, 18, 30), now)).toBe('Yesterday, 18:30');
+    expect(openedAt(new Date(2026, 10, 9, 14, 5), now)).toBe('9 Nov, 14:05');
+    expect(openedAt(new Date(2025, 10, 9, 9, 0), now)).toBe('9 Nov 2025, 09:00');
+  });
+
+  it('words the time inside a sentence', () => {
+    expect(dayAndTime(new Date(2026, 10, 12, 11, 42), now)).toBe('today at 11:42');
+    expect(dayAndTime(new Date(2026, 10, 11, 18, 30), now)).toBe('yesterday at 18:30');
+    expect(dayAndTime(new Date(2026, 10, 9, 14, 5), now)).toBe('on 9 Nov at 14:05');
+  });
+
+  it('formats the Recent views list', () => {
+    expect(recentWhen(new Date(2026, 10, 12, 11, 42), now)).toBe('today 11:42');
+    expect(recentWhen(new Date(2026, 10, 11, 9, 0), now)).toBe('yesterday');
+    expect(recentWhen(new Date(2026, 10, 9, 9, 0), now)).toBe('3 days ago');
+    expect(recentWhen(new Date(2026, 9, 28, 9, 0), now)).toBe('28 Oct');
+  });
+});
+
+describe('view sentences', () => {
+  const now = new Date(2026, 10, 12, 14, 0);
+
+  it('says how much was read', () => {
+    expect(pagesReadPhrase(4, 4)).toBe('all 4 pages');
+    expect(pagesReadPhrase(3, 4)).toBe('3 of 4 pages');
+    expect(pagesReadPhrase(1, 1)).toBe('1 page');
+  });
+
+  it('matches the Link views latest-view line', () => {
+    const at = new Date(2026, 10, 12, 11, 42);
+    expect(latestViewSentence({ at, viewerEmail: 'priya.s@example.com', maxPageReached: 4 }, 4, now)).toBe(
+      'Latest view: priya.s@example.com read all 4 pages today at 11:42.',
+    );
+    expect(latestViewSentence({ at, viewerEmail: null, maxPageReached: 2 }, 4, now)).toBe(
+      'Latest view: Someone read 2 of 4 pages today at 11:42.',
+    );
+  });
+
+  it('suggests a follow-up once a link has waited a day', () => {
+    expect(notOpenedDetail(new Date(2026, 10, 9, 10, 0), now)).toBe('Sent 3 days ago. Time for a follow-up?');
+    expect(notOpenedDetail(new Date(2026, 10, 12, 12, 0), now)).toBe('Sent 2 hours ago. No one has opened it yet.');
+  });
+
+  it('words the Documents nudge for one link and for several', () => {
+    const oldest = {
+      label: 'Accenture application',
+      documentTitle: 'Resume and projects.pdf',
+      createdAt: new Date(2026, 10, 9, 10, 0),
+    };
+    expect(notOpenedNudge({ count: 1, oldest }, now)).toEqual({
+      title: '1 link hasn’t been opened yet',
+      detail: 'Accenture application, on Resume and projects.pdf, was sent 3 days ago. Time for a follow-up?',
+    });
+    expect(notOpenedNudge({ count: 2, oldest }, now)).toEqual({
+      title: '2 links haven’t been opened yet',
+      detail: 'The oldest, Accenture application on Resume and projects.pdf, was sent 3 days ago. Time for a follow-up?',
+    });
+  });
+
+  it('describes the device and percentages', () => {
+    expect(deviceLabel({ device: 'Desktop', browser: 'Chrome', os: 'Windows' })).toBe('Desktop, Chrome, Windows');
+    expect(deviceLabel({ device: 'Mobile', browser: null, os: 'iOS' })).toBe('Mobile, iOS');
+    expect(deviceLabel({ device: null, browser: null, os: null })).toBe('Unknown device');
+    expect(formatPercent(0.613)).toBe('61%');
+    expect(formatPercent(null)).toBe('—');
   });
 });
 

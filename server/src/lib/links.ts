@@ -1,6 +1,6 @@
 import { customAlphabet } from 'nanoid';
 import type { Types } from 'mongoose';
-import type { LinkStatus, LinkSummary } from '@tracked-links/shared';
+import { linkReading, type LinkStatus, type LinkSummary } from '@tracked-links/shared';
 
 /** Letters and digits only, so a slug survives being typed, pasted into chat or read aloud. */
 const SLUG_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -33,9 +33,14 @@ export function linkStatus(link: Pick<LinkLike, 'isActive' | 'expiresAt'>, now =
 export interface LinkViewStats {
   views: number;
   lastViewedAt: Date | null;
+  avgReadMs: number | null;
+  /** The furthest page the latest view reached: decides "Read in full" or "Stopped at page n". */
+  latestMaxPage: number | null;
 }
 
-export function serializeLink(link: LinkLike, stats: LinkViewStats = { views: 0, lastViewedAt: null }): LinkSummary {
+export const NO_VIEWS: LinkViewStats = { views: 0, lastViewedAt: null, avgReadMs: null, latestMaxPage: null };
+
+export function serializeLink(link: LinkLike, pageCount: number, stats: LinkViewStats = NO_VIEWS): LinkSummary {
   return {
     id: link._id.toString(),
     documentId: link.documentId.toString(),
@@ -50,5 +55,7 @@ export function serializeLink(link: LinkLike, stats: LinkViewStats = { views: 0,
     status: linkStatus(link),
     views: stats.views,
     lastViewedAt: stats.lastViewedAt ? stats.lastViewedAt.toISOString() : null,
+    avgReadMs: stats.avgReadMs,
+    reading: linkReading(stats.latestMaxPage, pageCount),
   };
 }

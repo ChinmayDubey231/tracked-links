@@ -2,16 +2,21 @@ import { Router } from 'express';
 import multer from 'multer';
 import { Types } from 'mongoose';
 import { nanoid } from 'nanoid';
+import { z } from 'zod';
 import {
+  ANALYTICS_RANGES,
   MAX_THUMBNAIL_BYTES,
   MAX_UPLOAD_BYTES,
+  type DocumentAnalyticsResponse,
   type DocumentResponse,
   type DocumentsResponse,
   type DocumentSummary,
   type SignedFileResponse,
 } from '@tracked-links/shared';
+import { loadDocumentReading, loadLinkStats, loadNotOpened, loadRecentViews } from '../lib/analytics';
 import { cleanTitle, isPng, looksLikePdf, readPdfInfo } from '../lib/files';
 import { HttpError } from '../lib/httpError';
+import { serializeLink } from '../lib/links';
 import { findOwnedDocument } from '../lib/owned';
 import { countedViewFilter } from '../lib/views';
 import { currentUserId, requireAuth } from '../middleware/auth';
@@ -133,9 +138,11 @@ documentsRouter.get('/', async (req, res) => {
     }
   }
 
+  const titles = new Map(documents.map((doc) => [doc.id, doc.title]));
   const body: DocumentsResponse = {
     documents,
     totals: { documents: documents.length, views: totalViews, latestView: latest },
+    notOpened: await loadNotOpened(ownerId, titles),
   };
   res.json(body);
 });
@@ -205,6 +212,34 @@ documentsRouter.get('/:id', async (req, res) => {
   const doc = await findOwnedDocument(req.params.id, currentUserId(req));
   const stats = await loadStats([doc._id]);
   const body: DocumentResponse = { document: await serializeDocument(doc, stats.get(doc._id.toString())) };
+  res.json(body);
+});
+
+const analyticsQuerySchema = z.object({
+  range: z.enum(ANALYTICS_RANGES, { error: 'Choose a date range of all, 30d or 7d.' }).default('all'),
+});
+
+/** Everything the Document analytics screen shows, in one response. */
+documentsRouter.get('/:id/analytics', async (req, res) => {
+  const { range } = analyticsQuerySchema.parse(req.query);
+  const doc = await findOwnedDocument(req.params.id, currentUserId(req));
+  const links = await Link.find({ documentId: doc._id }).sort({ createdAt: -1 }).lean();
+  const labels = new Map(links.map((link) => [link._id.toString(), link.label]));
+
+  const [docStats, reading, linkStats, recentViews] = await Promise.all([
+    loadStats([doc._id]),
+    loadDocumentReading(doc._id, doc.pageCount, range),
+    loadLinkStats(links.map((link) => link._id)),
+    loadRecentViews(doc._id, labels),
+  ]);
+
+  const body: DocumentAnalyticsResponse = {
+    document: await serializeDocument(doc, docStats.get(doc._id.toString())),
+    range,
+    ...reading,
+    links: links.map((link) => serializeLink(link, doc.pageCount, linkStats.get(link._id.toString()))),
+    recentViews,
+  };
   res.json(body);
 });
 
