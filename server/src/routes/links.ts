@@ -4,16 +4,19 @@ import { Types } from 'mongoose';
 import { z } from 'zod';
 import {
   MAX_LINK_LABEL_LENGTH,
+  MAX_VIEWS_PAGE_SIZE,
   MIN_LINK_PASSWORD_LENGTH,
+  VIEWS_PAGE_SIZE,
   type LinkDetailResponse,
   type LinkResponse,
   type LinksResponse,
+  type LinkViewsResponse,
 } from '@tracked-links/shared';
+import { loadLinkDetail, loadLinkStats, loadLinkViews } from '../lib/analytics';
 import { HttpError } from '../lib/httpError';
-import { newSlug, serializeLink, type LinkViewStats } from '../lib/links';
+import { newSlug, serializeLink } from '../lib/links';
 import { findOwnedDocument, findOwnedLink } from '../lib/owned';
 import { BCRYPT_ROUNDS, fitsBcrypt } from '../lib/passwords';
-import { countedViewFilter } from '../lib/views';
 import { currentUserId, requireAuth } from '../middleware/auth';
 import { DocumentModel } from '../models/Document';
 import { Link } from '../models/Link';
@@ -64,31 +67,26 @@ function assertFuture(date: Date | null) {
   }
 }
 
+const viewsQuerySchema = z.object({
+  cursor: z.string().max(200).optional(),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(MAX_VIEWS_PAGE_SIZE, { error: `Ask for ${MAX_VIEWS_PAGE_SIZE} views or fewer at a time.` })
+    .default(VIEWS_PAGE_SIZE),
+});
+
 function isDuplicateSlug(error: unknown): boolean {
   const err = error as { code?: number; keyPattern?: Record<string, unknown> };
   return err.code === 11000 && Boolean(err.keyPattern?.slug);
 }
 
-/** Counted views and the latest one, per link. */
-async function loadLinkStats(linkIds: Types.ObjectId[]): Promise<Map<string, LinkViewStats>> {
-  const stats = new Map<string, LinkViewStats>();
-  if (linkIds.length === 0) return stats;
-  const rows = await View.aggregate<{ _id: Types.ObjectId; views: number; lastViewedAt: Date }>([
-    { $match: { linkId: { $in: linkIds }, ...countedViewFilter } },
-    { $group: { _id: '$linkId', views: { $sum: 1 }, lastViewedAt: { $max: '$startedAt' } } },
-  ]);
-  for (const row of rows) stats.set(row._id.toString(), { views: row.views, lastViewedAt: row.lastViewedAt });
-  return stats;
-}
-
-/** Distinct viewer emails where given, otherwise distinct IP hashes. */
-async function countUniqueViewers(linkId: Types.ObjectId): Promise<number> {
-  const [row] = await View.aggregate<{ count: number }>([
-    { $match: { linkId, ...countedViewFilter } },
-    { $group: { _id: { $ifNull: ['$viewerEmail', '$ipHash'] } } },
-    { $count: 'count' },
-  ]);
-  return row?.count ?? 0;
+/** The link's document, for its title and page count. Deleting a document deletes its links, so this is a safeguard. */
+async function linkDocument(documentId: Types.ObjectId) {
+  const doc = await DocumentModel.findById(documentId, { title: 1, pageCount: 1 }).lean();
+  if (!doc) throw new HttpError(404, "This link's document was deleted.", { code: 'not_found' });
+  return doc;
 }
 
 /* /documents/:id/links: listing and creating a document's links. */
@@ -100,7 +98,9 @@ documentLinksRouter.get('/', async (req, res) => {
   const doc = await findOwnedDocument(params.id, currentUserId(req));
   const links = await Link.find({ documentId: doc._id }).sort({ createdAt: -1 }).lean();
   const stats = await loadLinkStats(links.map((link) => link._id));
-  const body: LinksResponse = { links: links.map((link) => serializeLink(link, stats.get(link._id.toString()))) };
+  const body: LinksResponse = {
+    links: links.map((link) => serializeLink(link, doc.pageCount, stats.get(link._id.toString()))),
+  };
   res.json(body);
 });
 
@@ -127,7 +127,7 @@ documentLinksRouter.post('/', async (req, res) => {
         allowDownload: input.allowDownload,
         expiresAt: expiry,
       });
-      const body: LinkResponse = { link: serializeLink(link) };
+      const body: LinkResponse = { link: serializeLink(link, doc.pageCount) };
       res.status(201).json(body);
       return;
     } catch (error) {
@@ -143,18 +143,22 @@ linksRouter.use(requireAuth);
 
 linksRouter.get('/:id', async (req, res) => {
   const link = await findOwnedLink(req.params.id, currentUserId(req));
-  const [doc, stats, uniqueViewers] = await Promise.all([
-    DocumentModel.findById(link.documentId, { title: 1, pageCount: 1 }).lean(),
-    loadLinkStats([link._id]),
-    countUniqueViewers(link._id),
-  ]);
-  if (!doc) throw new HttpError(404, "This link's document was deleted.", { code: 'not_found' });
+  const doc = await linkDocument(link.documentId);
+  const [stats, detail] = await Promise.all([loadLinkStats([link._id]), loadLinkDetail(link._id, doc.pageCount)]);
 
   const body: LinkDetailResponse = {
-    link: serializeLink(link, stats.get(link._id.toString())),
+    link: serializeLink(link, doc.pageCount, stats.get(link._id.toString())),
     document: { id: doc._id.toString(), title: doc.title, pageCount: doc.pageCount },
-    uniqueViewers,
+    ...detail,
   };
+  res.json(body);
+});
+
+/** The link's views, newest first, a page at a time: ?cursor= from the previous page's nextCursor. */
+linksRouter.get('/:id/views', async (req, res) => {
+  const query = viewsQuerySchema.parse(req.query);
+  const link = await findOwnedLink(req.params.id, currentUserId(req));
+  const body: LinkViewsResponse = await loadLinkViews(link._id, query);
   res.json(body);
 });
 
@@ -177,8 +181,8 @@ linksRouter.patch('/:id', async (req, res) => {
   }
 
   await link.save();
-  const stats = await loadLinkStats([link._id]);
-  const body: LinkResponse = { link: serializeLink(link, stats.get(link._id.toString())) };
+  const [doc, stats] = await Promise.all([linkDocument(link.documentId), loadLinkStats([link._id])]);
+  const body: LinkResponse = { link: serializeLink(link, doc.pageCount, stats.get(link._id.toString())) };
   res.json(body);
 });
 

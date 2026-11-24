@@ -63,9 +63,24 @@ export interface DocumentsTotals {
   latestView: LatestView | null;
 }
 
+export interface NotOpenedLinks {
+  /** Active links (on, not expired) that nobody has opened yet. */
+  count: number;
+  /** The one sent longest ago: the Documents nudge names it. */
+  oldest: {
+    linkId: string;
+    label: string;
+    createdAt: string;
+    documentId: string;
+    documentTitle: string;
+  };
+}
+
 export interface DocumentsResponse {
   documents: DocumentSummary[];
   totals: DocumentsTotals;
+  /** Null when every active link has been opened (or there are none). */
+  notOpened: NotOpenedLinks | null;
 }
 
 export interface DocumentResponse {
@@ -86,6 +101,12 @@ export const MAX_LINK_LABEL_LENGTH = 80;
 /** active: anyone with the URL can open it. expired: past its expiry date. off: switched off by the owner. */
 export type LinkStatus = 'active' | 'expired' | 'off';
 
+/**
+ * How far the link's latest reader got. read: the latest view reached the last page.
+ * stopped: it ended before the last page, at `page`. unopened: no views yet.
+ */
+export type LinkReading = { state: 'read' } | { state: 'stopped'; page: number } | { state: 'unopened' };
+
 export interface LinkSummary {
   id: string;
   documentId: string;
@@ -102,6 +123,9 @@ export interface LinkSummary {
   /** Views with more than zero active reading time. */
   views: number;
   lastViewedAt: string | null;
+  /** Mean active reading time across those views, or null with no views. */
+  avgReadMs: number | null;
+  reading: LinkReading;
 }
 
 export interface LinkInput {
@@ -127,11 +151,93 @@ export interface LinksResponse {
   links: LinkSummary[];
 }
 
+export interface LatestLinkView {
+  at: string;
+  viewerEmail: string | null;
+  maxPageReached: number;
+}
+
 export interface LinkDetailResponse {
   link: LinkSummary;
   document: { id: string; title: string; pageCount: number };
   /** Distinct viewer emails where given, otherwise distinct network address hashes. */
   uniqueViewers: number;
+  /** Views that reached the document's last page. */
+  reachedLastPage: number;
+  /** The most recent view, for the "Latest view" line. Null until someone opens the link. */
+  latestView: LatestLinkView | null;
+}
+
+/** One row of the Link views table. */
+export interface ViewRow {
+  id: string;
+  startedAt: string;
+  viewerEmail: string | null;
+  totalDurationMs: number;
+  maxPageReached: number;
+  device: string | null;
+  browser: string | null;
+  os: string | null;
+}
+
+export const VIEWS_PAGE_SIZE = 20;
+export const MAX_VIEWS_PAGE_SIZE = 50;
+
+export interface LinkViewsResponse {
+  /** Newest first. */
+  views: ViewRow[];
+  /** Send as ?cursor= for the next page; null on the last page. */
+  nextCursor: string | null;
+  /** All counted views of the link, for "Showing 6 of 9 views". */
+  total: number;
+}
+
+/* Document analytics */
+
+export const ANALYTICS_RANGES = ['all', '30d', '7d'] as const;
+export type AnalyticsRange = (typeof ANALYTICS_RANGES)[number];
+
+export interface PageStat {
+  page: number;
+  /** Mean active time on the page across the views that reached it; null when none did. */
+  avgMs: number | null;
+  /** Share of views that reached the page, 0 to 1. */
+  reach: number;
+  /** Heat overlay opacity, from heatOpacity(). */
+  heat: number;
+}
+
+export interface AnalyticsStats {
+  views: number;
+  uniqueViewers: number;
+  avgReadMs: number | null;
+  /** Share of views that reached the last page, 0 to 1; null with no views. */
+  reachedLastPage: number | null;
+}
+
+export interface RecentView {
+  id: string;
+  linkId: string;
+  linkLabel: string;
+  viewerEmail: string | null;
+  startedAt: string;
+  totalDurationMs: number;
+  maxPageReached: number;
+}
+
+export interface DocumentAnalyticsResponse {
+  document: DocumentSummary;
+  range: AnalyticsRange;
+  /** "Reading time falls after page two." Computed from `stats` and `pages`. */
+  headline: string;
+  /** Views in the chosen range. */
+  stats: AnalyticsStats;
+  /** One entry per page, from views in the chosen range. */
+  pages: PageStat[];
+  /** Every link of the document, newest first, with all-time numbers (as on each Link screen). */
+  links: LinkSummary[];
+  /** The latest views across all links, newest first, regardless of range. */
+  recentViews: RecentView[];
 }
 
 /* Public viewer */

@@ -125,6 +125,102 @@ export function relativeTimeInSentence(value: DateInput, now: Date = new Date())
   return relative;
 }
 
+/** "11:42" in local time, 24-hour, as in the design. */
+export function clockTime(value: DateInput): string {
+  const date = toDate(value);
+  return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+}
+
+/** When a view opened, for tables: "Today, 11:42", "Yesterday, 18:30", "9 Nov, 14:05". */
+export function openedAt(value: DateInput, now: Date = new Date()): string {
+  const date = toDate(value);
+  const days = calendarDaysBetween(date, now);
+  const time = clockTime(date);
+  if (days === 0) return `Today, ${time}`;
+  if (days === 1) return `Yesterday, ${time}`;
+  return `${formatDate(date, { withYear: date.getFullYear() !== now.getFullYear() })}, ${time}`;
+}
+
+/** openedAt() inside a sentence: "today at 11:42", "yesterday at 18:30", "on 9 Nov at 14:05". */
+export function dayAndTime(value: DateInput, now: Date = new Date()): string {
+  const date = toDate(value);
+  const days = calendarDaysBetween(date, now);
+  const time = clockTime(date);
+  if (days === 0) return `today at ${time}`;
+  if (days === 1) return `yesterday at ${time}`;
+  return `on ${formatDate(date, { withYear: date.getFullYear() !== now.getFullYear() })} at ${time}`;
+}
+
+/** The Recent views list: "today 11:42", "yesterday", "3 days ago", "28 Oct". */
+export function recentWhen(value: DateInput, now: Date = new Date()): string {
+  const date = toDate(value);
+  if (calendarDaysBetween(date, now) === 0) return `today ${clockTime(date)}`;
+  const relative = relativeTime(date, now);
+  return relative === 'Yesterday' ? 'yesterday' : relative;
+}
+
+/** How much of the document a view covered: "all 4 pages", "3 of 4 pages", "1 page". */
+export function pagesReadPhrase(reached: number, total: number): string {
+  if (total <= 1) return '1 page';
+  if (reached >= total) return `all ${total} pages`;
+  return `${Math.max(reached, 1)} of ${total} pages`;
+}
+
+/** "Latest view: priya.s@example.com read all 4 pages today at 11:42." */
+export function latestViewSentence(
+  view: { at: DateInput; viewerEmail: string | null; maxPageReached: number },
+  pageCount: number,
+  now: Date = new Date(),
+): string {
+  const who = view.viewerEmail ?? 'Someone';
+  return `Latest view: ${who} read ${pagesReadPhrase(view.maxPageReached, pageCount)} ${dayAndTime(view.at, now)}.`;
+}
+
+/** Wait a day after sending before suggesting a follow-up. */
+function dueForFollowUp(sentAt: DateInput, now: Date): boolean {
+  return now.getTime() - toDate(sentAt).getTime() >= DAY;
+}
+
+/**
+ * Detail line for a link nobody has opened: "Sent 3 days ago. Time for a follow-up?"
+ * On the day it was made: "Sent 2 hours ago. No one has opened it yet."
+ */
+export function notOpenedDetail(createdAt: DateInput, now: Date = new Date()): string {
+  const sent = `Sent ${relativeTimeInSentence(createdAt, now)}.`;
+  return dueForFollowUp(createdAt, now) ? `${sent} Time for a follow-up?` : `${sent} No one has opened it yet.`;
+}
+
+/**
+ * The Documents nudge card: "1 link hasn’t been opened yet" /
+ * "Accenture application, on Resume and projects.pdf, was sent 3 days ago. Time for a follow-up?"
+ */
+export function notOpenedNudge(
+  notOpened: { count: number; oldest: { label: string; documentTitle: string; createdAt: DateInput } },
+  now: Date = new Date(),
+) {
+  const { count, oldest } = notOpened;
+  const title = `${countLabel(count, 'link')} ${count === 1 ? 'hasn’t' : 'haven’t'} been opened yet`;
+  const sent = `was sent ${relativeTimeInSentence(oldest.createdAt, now)}.`;
+  const followUp = dueForFollowUp(oldest.createdAt, now) ? ' Time for a follow-up?' : '';
+  const detail =
+    count === 1
+      ? `${oldest.label}, on ${oldest.documentTitle}, ${sent}${followUp}`
+      : `The oldest, ${oldest.label} on ${oldest.documentTitle}, ${sent}${followUp}`;
+  return { title, detail };
+}
+
+/** "Desktop, Chrome, Windows", leaving out whatever wasn't recognised. */
+export function deviceLabel(view: { device: string | null; browser: string | null; os: string | null }): string {
+  const parts = [view.device, view.browser, view.os].filter(Boolean);
+  return parts.length > 0 ? parts.join(', ') : 'Unknown device';
+}
+
+/** "61%". */
+export function formatPercent(fraction: number | null | undefined): string {
+  if (fraction == null || !Number.isFinite(fraction)) return '—';
+  return `${Math.round(fraction * 100)}%`;
+}
+
 /**
  * One-line summary of a link's settings, as on the Link views screen:
  * "Email required, no password, download off, expires 30 Nov 2026."
