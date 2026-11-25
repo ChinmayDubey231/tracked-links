@@ -6,8 +6,13 @@
   overflow: hidden;
 }
 
-/* Wide tables scroll sideways inside the card on phones. */
+/*
+ * Wide tables scroll sideways inside the card on phones. position: relative keeps
+ * absolutely positioned cell content (screen-reader-only text) inside the scroll box;
+ * without it, that text sits past the page's right edge and the whole page scrolls sideways.
+ */
 .scroller {
+  position: relative;
   overflow-x: auto;
 }
 
