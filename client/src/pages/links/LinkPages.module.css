@@ -145,14 +145,76 @@
   background: var(--color-accent-link-hover);
 }
 
-/* Link screen */
+/* Link views screen */
+
+.linkHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.statusRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.statusText {
+  color: var(--color-muted);
+  font-size: var(--text-small);
+  overflow-wrap: anywhere;
+}
 
 .urlRow {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
-  margin-top: var(--space-2);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: var(--space-4);
+}
+
+/* Views table cells */
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.viewer {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.noEmail {
+  color: var(--color-muted);
+}
+
+.duration {
+  font-weight: 600;
+  font-size: 22px;
+  white-space: nowrap;
+}
+
+.device {
+  color: var(--color-muted);
+}
+
+.tableFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.tableHint {
+  color: var(--color-muted);
+  font-size: var(--text-small);
 }
 
 .notice {
