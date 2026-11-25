@@ -5,15 +5,18 @@ import {
   documentsHeadline,
   formatDate,
   formatDuration,
+  notOpenedNudge,
   relativeTime,
   type DocumentsResponse,
   type DocumentSummary,
+  type NotOpenedLinks,
 } from '@tracked-links/shared';
-import { Button } from '../../components/Button';
+import { Button, ButtonLink } from '../../components/Button';
 import { DataTable, type Column } from '../../components/DataTable';
 import { OwnerShell } from '../../components/OwnerShell';
 import { PageThumb } from '../../components/PageThumb';
 import { ErrorState, LoadingState } from '../../components/States';
+import { ReadingChip } from '../../components/StatusChip';
 import { SubHeader } from '../../components/SubHeader';
 import { UploadDropzone, type UploadDropzoneHandle } from '../../components/UploadDropzone';
 import { api, errorMessage } from '../../lib/api';
@@ -71,6 +74,29 @@ const columns: Column<DocumentSummary>[] = [
     ),
   },
 ];
+
+/** "1 link hasn’t been opened yet": a nudge to follow up, shown while any active link has no views. */
+function NotOpenedCard({ notOpened }: { notOpened: NotOpenedLinks }) {
+  const { title, detail } = notOpenedNudge(notOpened);
+  return (
+    <section className={styles.nudge} aria-labelledby="not-opened-title">
+      <div className={styles.nudgeText}>
+        <span className={styles.nudgeChip} aria-hidden="true">
+          <ReadingChip reading={{ state: 'unopened' }} size="sm" />
+        </span>
+        <span className={styles.nudgeBody}>
+          <h2 id="not-opened-title" className={styles.nudgeTitle}>
+            {title}
+          </h2>
+          <span className={styles.nudgeDetail}>{detail}</span>
+        </span>
+      </div>
+      <ButtonLink to={`/documents/${notOpened.oldest.documentId}`} variant="secondary">
+        View links
+      </ButtonLink>
+    </section>
+  );
+}
 
 const STEPS = [
   { title: 'Upload a PDF', hint: 'Start here. Your resume is a good first document.' },
@@ -152,6 +178,7 @@ export default function DocumentsPage() {
           <h1 className={styles.title}>{title}</h1>
           <p className={styles.subtitle}>{subtitle}</p>
         </div>
+        {query.data.notOpened && <NotOpenedCard notOpened={query.data.notOpened} />}
         <UploadDropzone
           ref={dropzone}
           onFile={upload.start}

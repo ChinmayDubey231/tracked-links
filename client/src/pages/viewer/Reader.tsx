@@ -10,6 +10,7 @@ import { ErrorState, FormAlert, LoadingState } from '../../components/States';
 import { api, errorMessage } from '../../lib/api';
 import { cx } from '../../lib/cx';
 import '../../lib/pdf';
+import { usePdfBlob } from '../../lib/usePdfBlob';
 import { useReadingTracker } from './tracker';
 import styles from './Viewer.module.css';
 
@@ -39,25 +40,6 @@ function ZoomIcon({ plus }: { plus?: boolean }) {
       <path d="M5 12h14" />
     </svg>
   );
-}
-
-/** Downloads the PDF once, as a Blob: pdf.js then needs no further requests, so the short-lived URL can expire. */
-function usePdfBlob(url: string) {
-  const [state, setState] = useState<{ blob: Blob | null; failed: boolean }>({ blob: null, failed: false });
-  useEffect(() => {
-    const controller = new AbortController();
-    fetch(url, { signal: controller.signal })
-      .then((response) => {
-        if (!response.ok) throw new Error(`File request failed with ${response.status}`);
-        return response.blob();
-      })
-      .then((blob) => setState({ blob, failed: false }))
-      .catch((error: Error) => {
-        if (error.name !== 'AbortError') setState({ blob: null, failed: true });
-      });
-    return () => controller.abort();
-  }, [url]);
-  return state;
 }
 
 /** Tracks the width available for pages. */

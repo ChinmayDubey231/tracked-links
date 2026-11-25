@@ -2,7 +2,7 @@
 
 Upload a PDF (usually a resume), create a separate share link for each place you send it, and see how each link gets read: opens, time per page, pages reached and device. Viewers never need an account.
 
-> Build status: **phases 1 and 2 of 4 (foundations, links and viewer)** are done. See [Build progress](#build-progress).
+> Build status: **phases 1 to 3 of 4 (foundations, links and viewer, analytics)** are done. See [Build progress](#build-progress).
 
 ## Stack
 
@@ -106,11 +106,24 @@ The viewer follows `docs/spec.md` section 7 (code in `client/src/pages/viewer/tr
 4. Every 10 seconds a heartbeat sends the time added since the last one; the server adds it with `$inc`.
 5. When the tab is hidden or closed, `navigator.sendBeacon` sends what is left. Heartbeats go as `text/plain` so the browser can send them to the API's origin without a CORS preflight, which a beacon cannot do.
 
+## How the numbers are worked out
+
+The server computes every figure from View records (`server/src/lib/analytics.ts`). Views with no active reading time are left out, so a page that was opened and closed straight away doesn't count. `GET /documents/:id/analytics` gets the stats and the per-page numbers in a single aggregate query with `$facet`.
+
+- **Unique viewers:** distinct emails where the link asked for one, otherwise distinct hashed network addresses.
+- **Average time on page p:** all time spent on page p, divided by the number of views that reached page p. A quick skim by someone who stopped early doesn't drag down the pages they never saw.
+- **Reach for page p:** the share of views whose furthest page was p or later.
+- **Heat shading:** `0.6 × min(average seconds, 50) / 50`, never below 0.06.
+- **Headline:** the biggest drop in average time between one page and the next ("Reading time falls after page two."). With fewer than 3 views it says there aren't enough views yet.
+- **Read in full / Stopped at page n:** taken from the link's **latest** view. If that view reached the last page, the link is "Read in full". Otherwise it is "Stopped at page n", where n is the furthest page that view reached. The latest view is used because it shows where things stand now, and because the Link screen puts the chip next to "Latest view: … read 3 of 4 pages".
+- **Date range** (All time, 30 or 7 days) covers the headline, the heatmap and the stats. The Links card and Recent views always cover all time, so each link's view count matches its own Link screen.
+- **Not opened:** a link that is on, hasn't expired and has no views. The Documents screen names the one sent longest ago.
+
 ## Build progress
 
 - [x] **Phase 1, foundations:** monorepo, design tokens, shared components, sign-up / log-in with JWT, upload to private storage, Documents screen with real data and the empty state.
 - [x] **Phase 2, links and viewer:** create, edit and switch off links; public viewer with `react-pdf`; email/password gate; access endpoint; heartbeat and beacon tracking.
-- [ ] **Phase 3, analytics:** analytics endpoint, Document analytics screen (heatmap, reach, stats, links, recent views), Link views screen.
+- [x] **Phase 3, analytics:** analytics endpoint, Document analytics screen (heatmap, reach, stats, links, recent views), Link views screen with paginated views, "Not opened" follow-up nudge on Documents.
 - [ ] **Phase 4, polish and launch:** replace file, expiry, first-open email (Resend), bot filtering, ~~landing page~~ (built early, matches `design/screens/landing.html`), deployment (Vercel + Render with keep-alive), demo GIF.
 
 ## Design references
