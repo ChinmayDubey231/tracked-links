@@ -21,6 +21,51 @@
   font-size: var(--text-small);
 }
 
+/* "Not opened" nudge (design canvas, 2026-11-14) */
+
+.nudge {
+  background: var(--color-surface);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-card);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.nudgeText {
+  flex: 1 1 320px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.nudgeChip {
+  flex: none;
+  margin-top: 2px;
+}
+
+.nudgeBody {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.nudgeTitle {
+  font-weight: 600;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+}
+
+.nudgeDetail {
+  color: var(--color-muted);
+  font-size: var(--text-small);
+  overflow-wrap: anywhere;
+}
+
 /* Table cells */
 
 .thumb {
