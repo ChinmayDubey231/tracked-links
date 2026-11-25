@@ -1,0 +1,261 @@
+/* Document analytics (design/screens/document-analytics.html, canvas "Document analytics"). */
+
+.main {
+  padding-top: var(--space-4);
+}
+
+/* Period row across the top, then the reading analysis beside the links; stacks on narrow screens. */
+.layout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-8);
+}
+
+.periodRow {
+  flex: 1 1 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.period {
+  color: var(--color-muted);
+  font-size: var(--text-small);
+}
+
+.rangeControl {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.rangeLabel {
+  color: var(--color-muted);
+  font-size: var(--text-caption);
+}
+
+.selectWrap {
+  position: relative;
+  display: inline-flex;
+  color: var(--color-ink);
+}
+
+.select {
+  appearance: none;
+  min-height: var(--touch-target);
+  padding: 0 38px 0 16px;
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--text-small);
+  cursor: pointer;
+}
+
+.select:hover {
+  background: var(--color-page);
+}
+
+.chevron {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.reading {
+  flex: 3 1 520px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  transition: opacity 150ms ease;
+}
+
+/* New numbers for another date range are on their way. */
+.busy {
+  opacity: 0.6;
+}
+
+.aside {
+  flex: 2 1 340px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Heatmap: four pages a row on desktop, two on phones. */
+
+.heatmapWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.heatmap {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr));
+  gap: var(--space-4);
+}
+
+.heatPage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.heatStats {
+  display: flex;
+  flex-direction: column;
+}
+
+.heatSeconds {
+  font-weight: 600;
+  font-size: var(--text-stat);
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.heatLabel {
+  color: var(--color-muted);
+  font-size: var(--text-micro);
+}
+
+.previewNote {
+  color: var(--color-muted);
+  font-size: var(--text-small);
+}
+
+/* A react-pdf page scaled to fill its thumbnail. */
+.pdfPage {
+  position: absolute;
+  inset: 0;
+}
+
+.pdfPage :global(.react-pdf__Page),
+.pdfPage canvas {
+  width: 100% !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  color: var(--color-muted);
+  font-size: var(--text-micro);
+}
+
+.legendScale {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.swatches {
+  display: flex;
+  gap: 2px;
+}
+
+.swatch {
+  width: 22px;
+  height: 8px;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+  gap: var(--space-3);
+}
+
+/* Recent views card */
+
+.recent {
+  background: var(--color-surface);
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-card-lg);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.recentHeading {
+  margin-bottom: var(--space-2);
+  font-weight: 600;
+  font-size: var(--text-card-title);
+}
+
+.recentEmpty {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-rule);
+  color: var(--color-muted);
+  font-size: var(--text-small);
+}
+
+.recentList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recentItem {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 14px;
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--color-heat);
+}
+
+.recentText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.who {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  color: var(--color-muted);
+  font-size: var(--text-small);
+}
+
+.duration {
+  font-weight: 600;
+  font-size: var(--text-card-title);
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .recent {
+    padding: var(--space-5);
+  }
+}

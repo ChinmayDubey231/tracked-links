@@ -1,26 +1,38 @@
 import { Link } from 'react-router';
-import { countLabel, relativeTimeInSentence } from '@tracked-links/shared';
+import {
+  countLabel,
+  formatDuration,
+  notOpenedDetail,
+  relativeTimeInSentence,
+  type LinkSummary,
+} from '@tracked-links/shared';
 import { ButtonLink } from '../../components/Button';
-import { ErrorState, LoadingState } from '../../components/States';
-import { StatusChip } from '../../components/StatusChip';
-import { errorMessage } from '../../lib/api';
-import { useDocumentLinks } from '../../lib/links';
+import { ReadingChip, StatusChip } from '../../components/StatusChip';
 import styles from './DocumentLinks.module.css';
 
-/** The document's links, each opening its Link screen. Phase 3 adds reading statistics per link. */
-export function DocumentLinks({ documentId }: { documentId: string }) {
-  const query = useDocumentLinks(documentId);
+/** Expired or Off says more than how it was read, so it takes the chip's place. */
+function LinkChip({ link }: { link: LinkSummary }) {
+  if (link.status !== 'active') return <StatusChip status={link.status} size="sm" />;
+  return <ReadingChip reading={link.reading} size="sm" />;
+}
 
+/** "2m 05s average, last opened 2 hours ago", or a follow-up prompt for a link nobody opened. */
+function linkDetail(link: LinkSummary): string {
+  if (link.views === 0 || !link.lastViewedAt) {
+    if (link.status === 'active') return notOpenedDetail(link.createdAt);
+    return `Sent ${relativeTimeInSentence(link.createdAt)}. No one opened it.`;
+  }
+  return `${formatDuration(link.avgReadMs)} average, last opened ${relativeTimeInSentence(link.lastViewedAt)}`;
+}
+
+/** The Links card on Document analytics: each link with its reading status, opening its Link views screen. */
+export function DocumentLinks({ documentId, links }: { documentId: string; links: LinkSummary[] }) {
   return (
     <section className={styles.card} aria-labelledby="links-heading">
       <h2 id="links-heading" className={styles.heading}>
         Links
       </h2>
-      {query.isPending ? (
-        <LoadingState label="Loading links…" />
-      ) : query.isError ? (
-        <ErrorState title="The links didn't load" message={errorMessage(query.error)} onRetry={() => void query.refetch()} />
-      ) : query.data.length === 0 ? (
+      {links.length === 0 ? (
         <div className={styles.empty}>
           <p className={styles.muted}>
             No links yet. Make one for each place you send this document, such as “TCS application” or “LinkedIn bio”.
@@ -29,20 +41,16 @@ export function DocumentLinks({ documentId }: { documentId: string }) {
         </div>
       ) : (
         <ul className={styles.list}>
-          {query.data.map((link) => (
+          {links.map((link) => (
             <li key={link.id}>
               <Link to={`/links/${link.id}`} className={styles.row}>
                 <span className={styles.main}>
                   <span className={styles.labelLine}>
                     <span className={styles.label}>{link.label}</span>
-                    {link.status !== 'active' && <StatusChip status={link.status} />}
+                    <LinkChip link={link} />
                   </span>
                   <span className={styles.slug}>/v/{link.slug}</span>
-                  <span className={styles.muted}>
-                    {link.lastViewedAt
-                      ? `Last opened ${relativeTimeInSentence(link.lastViewedAt)}`
-                      : `Created ${relativeTimeInSentence(link.createdAt)}, not opened yet`}
-                  </span>
+                  <span className={styles.muted}>{linkDetail(link)}</span>
                 </span>
                 <span className={styles.views}>{countLabel(link.views, 'view')}</span>
               </Link>
