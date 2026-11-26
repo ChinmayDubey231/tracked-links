@@ -45,7 +45,7 @@ export const heartbeatLimiter = limiter({
   message: 'Too many updates. Reading time will be recorded again shortly.',
 });
 
-/** Uploads, counted per account rather than per IP. */
+/** Uploads and file replacements, counted per account rather than per IP. */
 export const uploadLimiter = limiter({
   windowMs: 60 * 60 * 1000,
   limit: 30,

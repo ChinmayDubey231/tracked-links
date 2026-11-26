@@ -118,6 +118,63 @@ async function removeQuietly(key: string | null | undefined) {
   }
 }
 
+const uploadFields = upload.fields([
+  { name: 'file', maxCount: 1 },
+  { name: 'thumbnail', maxCount: 1 },
+]);
+
+interface CheckedUpload {
+  pdf: Express.Multer.File;
+  pageCount: number;
+  /** A small first-page PNG from the owner's browser, when one came and it really is a PNG. */
+  thumbnail: Express.Multer.File | null;
+}
+
+/** The uploaded PDF, checked by its content (not its name), with its page count. */
+async function checkUpload(req: Express.Request): Promise<CheckedUpload> {
+  const files = (req.files ?? {}) as Record<string, Express.Multer.File[] | undefined>;
+  const pdf = files.file?.[0];
+  if (!pdf) {
+    throw new HttpError(400, 'Choose a PDF file to upload.', { code: 'no_file' });
+  }
+  if (!looksLikePdf(pdf.buffer)) {
+    throw new HttpError(415, "This file isn't a PDF. Save or export it as a PDF, then upload it again.", {
+      code: 'not_pdf',
+    });
+  }
+
+  let pageCount: number;
+  try {
+    ({ pageCount } = await readPdfInfo(pdf.buffer));
+  } catch {
+    throw new HttpError(422, "We couldn't read this PDF. It may be damaged; export it again and retry.", {
+      code: 'unreadable_pdf',
+    });
+  }
+
+  // The thumbnail is optional: skip it silently if it is not a small PNG.
+  const thumb = files.thumbnail?.[0];
+  const thumbnail = thumb && thumb.size <= MAX_THUMBNAIL_BYTES && isPng(thumb.buffer) ? thumb : null;
+  return { pdf, pageCount, thumbnail };
+}
+
+/** Stores the PDF and its thumbnail under new random keys. */
+async function storeUpload(ownerId: string, { pdf, thumbnail }: CheckedUpload) {
+  const fileKey = `documents/${ownerId}/${nanoid(16)}.pdf`;
+  await storage.put(fileKey, pdf.buffer, 'application/pdf');
+  let thumbnailKey: string | null = null;
+  if (thumbnail) {
+    thumbnailKey = `thumbnails/${ownerId}/${nanoid(16)}.png`;
+    try {
+      await storage.put(thumbnailKey, thumbnail.buffer, 'image/png');
+    } catch (error) {
+      await removeQuietly(fileKey);
+      throw error;
+    }
+  }
+  return { fileKey, thumbnailKey };
+}
+
 export const documentsRouter = Router();
 documentsRouter.use(requireAuth);
 documentsRouter.use('/:id/links', documentLinksRouter);
@@ -147,66 +204,68 @@ documentsRouter.get('/', async (req, res) => {
   res.json(body);
 });
 
-documentsRouter.post(
-  '/',
-  uploadLimiter,
-  upload.fields([
-    { name: 'file', maxCount: 1 },
-    { name: 'thumbnail', maxCount: 1 },
-  ]),
-  async (req, res) => {
-    const ownerId = currentUserId(req);
-    const files = (req.files ?? {}) as Record<string, Express.Multer.File[] | undefined>;
-    const pdf = files.file?.[0];
-    if (!pdf) {
-      throw new HttpError(400, 'Choose a PDF file to upload.', { code: 'no_file' });
-    }
-    if (!looksLikePdf(pdf.buffer)) {
-      throw new HttpError(415, "This file isn't a PDF. Save or export it as a PDF, then upload it again.", {
-        code: 'not_pdf',
-      });
-    }
+documentsRouter.post('/', uploadLimiter, uploadFields, async (req, res) => {
+  const ownerId = currentUserId(req);
+  const checked = await checkUpload(req);
+  const bodyTitle = typeof req.body?.title === 'string' ? req.body.title : '';
+  const title = cleanTitle(bodyTitle || checked.pdf.originalname);
+  const { fileKey, thumbnailKey } = await storeUpload(ownerId, checked);
 
-    let pageCount: number;
-    try {
-      ({ pageCount } = await readPdfInfo(pdf.buffer));
-    } catch {
-      throw new HttpError(422, "We couldn't read this PDF. It may be damaged; export it again and retry.", {
-        code: 'unreadable_pdf',
-      });
-    }
+  try {
+    const doc = await DocumentModel.create({
+      ownerId,
+      title,
+      fileKey,
+      thumbnailKey,
+      pageCount: checked.pageCount,
+      sizeBytes: checked.pdf.size,
+    });
+    const body: DocumentResponse = { document: await serializeDocument(doc) };
+    res.status(201).json(body);
+  } catch (error) {
+    await Promise.all([removeQuietly(fileKey), removeQuietly(thumbnailKey)]);
+    throw error;
+  }
+});
 
-    const bodyTitle = typeof req.body?.title === 'string' ? req.body.title : '';
-    const title = cleanTitle(bodyTitle || pdf.originalname);
+/**
+ * Swaps in a new PDF and keeps the document, so every link already shared opens the new
+ * file at the same address. The title stays. Earlier views stay too, each with the page
+ * count of the version it read (View.pages).
+ */
+documentsRouter.post<{ id: string }>('/:id/replace', uploadLimiter, uploadFields, async (req, res) => {
+  const ownerId = currentUserId(req);
+  const doc = await findOwnedDocument(req.params.id, ownerId);
+  const checked = await checkUpload(req);
+  const { fileKey, thumbnailKey } = await storeUpload(ownerId, checked);
 
-    const fileKey = `documents/${ownerId}/${nanoid(16)}.pdf`;
-    await storage.put(fileKey, pdf.buffer, 'application/pdf');
+  let updated;
+  try {
+    // Only if nobody replaced it since we read it, so two tabs can't leave a stored file orphaned.
+    updated = await DocumentModel.findOneAndUpdate(
+      { _id: doc._id, ownerId, version: doc.version ?? 1 },
+      {
+        $set: { fileKey, thumbnailKey, pageCount: checked.pageCount, sizeBytes: checked.pdf.size, replacedAt: new Date() },
+        $inc: { version: 1 },
+      },
+      { returnDocument: 'after' },
+    ).lean();
+  } catch (error) {
+    await Promise.all([removeQuietly(fileKey), removeQuietly(thumbnailKey)]);
+    throw error;
+  }
+  if (!updated) {
+    await Promise.all([removeQuietly(fileKey), removeQuietly(thumbnailKey)]);
+    throw new HttpError(409, 'This document was replaced in another tab a moment ago. Reload the page to see the latest version.', {
+      code: 'conflict',
+    });
+  }
 
-    // The thumbnail is optional: skip it silently if it is not a small PNG.
-    const thumb = files.thumbnail?.[0];
-    let thumbnailKey: string | null = null;
-    if (thumb && thumb.size <= MAX_THUMBNAIL_BYTES && isPng(thumb.buffer)) {
-      thumbnailKey = `thumbnails/${ownerId}/${nanoid(16)}.png`;
-      await storage.put(thumbnailKey, thumb.buffer, 'image/png');
-    }
-
-    try {
-      const doc = await DocumentModel.create({
-        ownerId,
-        title,
-        fileKey,
-        thumbnailKey,
-        pageCount,
-        sizeBytes: pdf.size,
-      });
-      const body: DocumentResponse = { document: await serializeDocument(doc) };
-      res.status(201).json(body);
-    } catch (error) {
-      await Promise.all([removeQuietly(fileKey), removeQuietly(thumbnailKey)]);
-      throw error;
-    }
-  },
-);
+  await Promise.all([removeQuietly(doc.fileKey), removeQuietly(doc.thumbnailKey)]);
+  const stats = await loadStats([updated._id]);
+  const body: DocumentResponse = { document: await serializeDocument(updated, stats.get(updated._id.toString())) };
+  res.json(body);
+});
 
 documentsRouter.get('/:id', async (req, res) => {
   const doc = await findOwnedDocument(req.params.id, currentUserId(req));
