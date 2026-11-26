@@ -161,7 +161,7 @@ export default function DocumentPage() {
 
         <aside className={styles.aside} aria-label="Links and recent views">
           <DocumentLinks documentId={doc.id} links={data.links} />
-          <RecentViews views={data.recentViews} pageCount={doc.pageCount} />
+          <RecentViews views={data.recentViews} />
         </aside>
       </div>
     );

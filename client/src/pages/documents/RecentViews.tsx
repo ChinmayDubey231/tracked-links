@@ -2,7 +2,7 @@ import { formatDuration, pagesReadPhrase, recentWhen, type RecentView } from '@t
 import styles from './DocumentPage.module.css';
 
 /** The Recent views card: the latest reading sessions across the document's links. */
-export function RecentViews({ views, pageCount }: { views: RecentView[]; pageCount: number }) {
+export function RecentViews({ views }: { views: RecentView[] }) {
   return (
     <section className={styles.recent} aria-labelledby="recent-heading">
       <h2 id="recent-heading" className={styles.recentHeading}>
@@ -20,7 +20,7 @@ export function RecentViews({ views, pageCount }: { views: RecentView[]; pageCou
               <span className={styles.recentText}>
                 <span className={styles.who}>{view.viewerEmail ?? 'No email given'}</span>
                 <span className={styles.meta}>
-                  {view.linkLabel}, {recentWhen(view.startedAt)}, {pagesReadPhrase(view.maxPageReached, pageCount)}
+                  {view.linkLabel}, {recentWhen(view.startedAt)}, {pagesReadPhrase(view.maxPageReached, view.pageCount)}
                 </span>
               </span>
               <span className={styles.duration}>
