@@ -29,7 +29,11 @@ function ThumbPage({ pageNumber }: { pageNumber: number }) {
   );
 }
 
-/** The heatmap with the real pages, rendered by react-pdf. Loaded on demand: pdf.js is large. */
+/**
+ * The heatmap with the real pages, rendered by react-pdf. Loaded on demand: pdf.js is large.
+ * suspense={false}: react-pdf 11 loads through Suspense by default, which would swap the whole
+ * heatmap for the Suspense fallback each time a page loads. Pages inherit the setting.
+ */
 export default function PdfHeatmap({
   blob,
   pages,
@@ -42,7 +46,7 @@ export default function PdfHeatmap({
   onError: () => void;
 }) {
   return (
-    <Document file={blob} loading={fallback} error={fallback} onLoadError={onError}>
+    <Document file={blob} loading={fallback} error={fallback} onLoadError={onError} suspense={false}>
       <HeatmapGrid pages={pages} renderPage={(page) => <ThumbPage pageNumber={page} />} />
     </Document>
   );

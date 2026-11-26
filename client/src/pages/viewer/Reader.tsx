@@ -188,8 +188,12 @@ export default function Reader({ slug, access }: { slug: string; access: AccessR
       </div>
     );
   } else {
+    // suspense={false}: react-pdf 11 loads through Suspense by default. Each page load would then
+    // swap the whole reader for ViewerPage's Suspense fallback and, under StrictMode, re-run this
+    // component's effects (downloading the PDF again, in a loop). Pages inherit the setting.
     body = (
       <Document
+        suspense={false}
         file={blob}
         onLoadSuccess={(pdf) => void onLoadSuccess(pdf as unknown as PdfProxy)}
         onLoadError={() => setLoadError(true)}
