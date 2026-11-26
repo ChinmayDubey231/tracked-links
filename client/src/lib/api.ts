@@ -99,23 +99,35 @@ export async function api<T>(path: string, { method = 'GET', body, auth = true, 
   return data as T;
 }
 
-/**
- * Uploads a PDF (plus an optional first-page PNG) with XMLHttpRequest, because
- * fetch does not report upload progress.
- */
-export function uploadDocument(
+export type UploadProgress = (fraction: number) => void;
+
+/** Uploads a new PDF (plus an optional first-page PNG) as a new document. */
+export function uploadDocument(file: File, thumbnail: Blob | null, onProgress: UploadProgress): Promise<DocumentSummary> {
+  const form = new FormData();
+  form.append('title', file.name);
+  form.append('file', file, file.name);
+  if (thumbnail) form.append('thumbnail', thumbnail, 'thumbnail.png');
+  return sendPdfForm('/documents', form, onProgress);
+}
+
+/** Replaces an existing document's PDF. The document keeps its title and its links. */
+export function replaceDocumentFile(
+  documentId: string,
   file: File,
   thumbnail: Blob | null,
-  onProgress: (fraction: number) => void,
+  onProgress: UploadProgress,
 ): Promise<DocumentSummary> {
-  return new Promise((resolve, reject) => {
-    const form = new FormData();
-    form.append('title', file.name);
-    form.append('file', file, file.name);
-    if (thumbnail) form.append('thumbnail', thumbnail, 'thumbnail.png');
+  const form = new FormData();
+  form.append('file', file, file.name);
+  if (thumbnail) form.append('thumbnail', thumbnail, 'thumbnail.png');
+  return sendPdfForm(`/documents/${encodeURIComponent(documentId)}/replace`, form, onProgress);
+}
 
+/** Sends the form with XMLHttpRequest, because fetch does not report upload progress. */
+function sendPdfForm(path: string, form: FormData, onProgress: UploadProgress): Promise<DocumentSummary> {
+  return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', `${API_URL}/documents`);
+    xhr.open('POST', `${API_URL}${path}`);
     const token = getToken();
     if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     xhr.responseType = 'json';

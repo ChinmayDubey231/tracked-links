@@ -72,7 +72,8 @@ function ActiveSwitch({ data }: { data: LinkDetailResponse }) {
 function StatusLine({ data }: { data: LinkDetailResponse }) {
   const { link, latestView, document } = data;
   let text: string;
-  if (latestView) text = latestViewSentence(latestView, document.pageCount);
+  // The latest reader may have read an earlier, since-replaced version with a different page count.
+  if (latestView) text = latestViewSentence(latestView, latestView.pageCount);
   else if (link.status === 'active') text = notOpenedDetail(link.createdAt);
   else text = `Sent ${relativeTimeInSentence(link.createdAt)}. No one opened it.`;
 
@@ -84,45 +85,44 @@ function StatusLine({ data }: { data: LinkDetailResponse }) {
   );
 }
 
-function viewColumns(pageCount: number): Column<ViewRow>[] {
-  return [
-    {
-      id: 'opened',
-      header: 'Opened',
-      width: '16%',
-      cell: (view) => <span className={styles.nowrap}>{openedAt(view.startedAt)}</span>,
-    },
-    {
-      id: 'viewer',
-      header: 'Viewer',
-      cell: (view) =>
-        view.viewerEmail ? (
-          <span className={styles.viewer}>{view.viewerEmail}</span>
-        ) : (
-          <span className={styles.noEmail}>No email given</span>
-        ),
-    },
-    {
-      id: 'pages',
-      header: 'Pages reached',
-      width: '16%',
-      cell: (view) => <PagesReachedMeter reached={view.maxPageReached} total={pageCount} />,
-    },
-    {
-      id: 'duration',
-      header: 'Duration',
-      align: 'right',
-      width: '13%',
-      cell: (view) => <span className={styles.duration}>{formatDuration(view.totalDurationMs)}</span>,
-    },
-    {
-      id: 'device',
-      header: 'Device',
-      width: '22%',
-      cell: (view) => <span className={styles.device}>{deviceLabel(view)}</span>,
-    },
-  ];
-}
+/** Each view's page meter counts the pages of the version it read. */
+const VIEW_COLUMNS: Column<ViewRow>[] = [
+  {
+    id: 'opened',
+    header: 'Opened',
+    width: '16%',
+    cell: (view) => <span className={styles.nowrap}>{openedAt(view.startedAt)}</span>,
+  },
+  {
+    id: 'viewer',
+    header: 'Viewer',
+    cell: (view) =>
+      view.viewerEmail ? (
+        <span className={styles.viewer}>{view.viewerEmail}</span>
+      ) : (
+        <span className={styles.noEmail}>No email given</span>
+      ),
+  },
+  {
+    id: 'pages',
+    header: 'Pages reached',
+    width: '16%',
+    cell: (view) => <PagesReachedMeter reached={view.maxPageReached} total={view.pageCount} />,
+  },
+  {
+    id: 'duration',
+    header: 'Duration',
+    align: 'right',
+    width: '13%',
+    cell: (view) => <span className={styles.duration}>{formatDuration(view.totalDurationMs)}</span>,
+  },
+  {
+    id: 'device',
+    header: 'Device',
+    width: '22%',
+    cell: (view) => <span className={styles.device}>{deviceLabel(view)}</span>,
+  },
+];
 
 /** The link's views, newest first, a page at a time. */
 function ViewsTable({ linkId, total, pageCount }: { linkId: string; total: number; pageCount: number }) {
@@ -154,7 +154,7 @@ function ViewsTable({ linkId, total, pageCount }: { linkId: string; total: numbe
     <>
       <DataTable
         caption="Views of this link, newest first"
-        columns={viewColumns(pageCount)}
+        columns={VIEW_COLUMNS}
         rows={rows}
         rowKey={(view) => view.id}
         minWidth={760}

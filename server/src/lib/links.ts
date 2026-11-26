@@ -36,9 +36,17 @@ export interface LinkViewStats {
   avgReadMs: number | null;
   /** The furthest page the latest view reached: decides "Read in full" or "Stopped at page n". */
   latestMaxPage: number | null;
+  /** The page count of the version the latest view read (the file may have been replaced since). */
+  latestPageCount: number | null;
 }
 
-export const NO_VIEWS: LinkViewStats = { views: 0, lastViewedAt: null, avgReadMs: null, latestMaxPage: null };
+export const NO_VIEWS: LinkViewStats = {
+  views: 0,
+  lastViewedAt: null,
+  avgReadMs: null,
+  latestMaxPage: null,
+  latestPageCount: null,
+};
 
 export function serializeLink(link: LinkLike, pageCount: number, stats: LinkViewStats = NO_VIEWS): LinkSummary {
   return {
@@ -56,6 +64,6 @@ export function serializeLink(link: LinkLike, pageCount: number, stats: LinkView
     views: stats.views,
     lastViewedAt: stats.lastViewedAt ? stats.lastViewedAt.toISOString() : null,
     avgReadMs: stats.avgReadMs,
-    reading: linkReading(stats.latestMaxPage, pageCount),
+    reading: linkReading(stats.latestMaxPage, stats.latestPageCount || pageCount),
   };
 }

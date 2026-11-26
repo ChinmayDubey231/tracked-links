@@ -45,7 +45,8 @@ const columns: Column<DocumentSummary>[] = [
       <span className={styles.docName}>
         <span className={styles.docTitle}>{doc.title}</span>
         <span className={styles.docMeta}>
-          {countLabel(doc.pageCount, 'page')}, {countLabel(doc.linkCount, 'link')}, uploaded {formatDate(doc.createdAt)}
+          {countLabel(doc.pageCount, 'page')}, {countLabel(doc.linkCount, 'link')},{' '}
+          {doc.replacedAt ? `replaced ${formatDate(doc.replacedAt)}` : `uploaded ${formatDate(doc.createdAt)}`}
         </span>
       </span>
     ),

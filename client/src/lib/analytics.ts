@@ -47,11 +47,11 @@ export function useLinkViews(id: string | undefined, enabled = true) {
 /**
  * A signed URL of the owner's PDF, for page thumbnails. It expires in minutes, so it is
  * fetched fresh on every visit (gcTime 0) and never refetched while the page is open:
- * the file is downloaded once, straight away.
+ * the file is downloaded once, straight away. Keyed by version, so a replaced file loads anew.
  */
-export function useDocumentFileUrl(id: string | undefined) {
+export function useDocumentFileUrl(id: string | undefined, version: number) {
   return useQuery({
-    queryKey: ['document-file', id],
+    queryKey: ['document-file', id, version],
     queryFn: ({ signal }) => api<SignedFileResponse>(`/documents/${id}/file`, { signal }).then((res) => res.url),
     enabled: Boolean(id),
     staleTime: Infinity,

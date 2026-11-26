@@ -14,14 +14,17 @@ const PdfHeatmap = lazy(() => import('./PdfHeatmap'));
  */
 export function PageHeatmap({
   documentId,
+  version,
   pages,
   thumbnailUrl,
 }: {
   documentId: string;
+  /** The file's version: a replaced file is loaded again. */
+  version: number;
   pages: PageStat[];
   thumbnailUrl: string | null;
 }) {
-  const fileUrl = useDocumentFileUrl(documentId);
+  const fileUrl = useDocumentFileUrl(documentId, version);
   const { blob, failed } = usePdfBlob(fileUrl.data);
   const [renderFailed, setRenderFailed] = useState(false);
 

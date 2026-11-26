@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -18,11 +18,13 @@ import { SubHeader } from '../../components/SubHeader';
 import { parseRange, useDocumentAnalytics } from '../../lib/analytics';
 import { api, errorMessage } from '../../lib/api';
 import { cx } from '../../lib/cx';
+import { useFileReplace } from '../../lib/upload';
 import { usePageTitle } from '../../lib/usePageTitle';
 import { DocumentLinks } from './DocumentLinks';
 import { HeatLegend } from './HeatmapGrid';
 import { PageHeatmap } from './PageHeatmap';
 import { RecentViews } from './RecentViews';
+import { ReplaceFileButton, ReplaceStatus } from './ReplaceFile';
 import styles from './DocumentPage.module.css';
 import headStyles from './DocumentsPage.module.css';
 
@@ -99,6 +101,8 @@ export default function DocumentPage() {
   const query = useDocumentAnalytics(id, range);
   const data = query.data;
   usePageTitle(data?.document.title ?? 'Document');
+  const replace = useFileReplace(id);
+  const [pagesBefore, setPagesBefore] = useState<number | null>(null);
 
   const setRange = (next: AnalyticsRange) =>
     setSearchParams(next === 'all' ? {} : { range: next }, { replace: true, preventScrollReset: true });
@@ -106,7 +110,20 @@ export default function DocumentPage() {
   const subHeader = (
     <SubHeader
       crumbs={[{ label: 'Documents', to: '/documents' }, { label: data?.document.title ?? 'Document' }]}
-      actions={data ? <ButtonLink to={`/documents/${data.document.id}/links/new`}>New link</ButtonLink> : undefined}
+      actions={
+        data ? (
+          <>
+            <ReplaceFileButton
+              busy={replace.busy}
+              onFile={(file) => {
+                setPagesBefore(data.document.pageCount);
+                void replace.start(file);
+              }}
+            />
+            <ButtonLink to={`/documents/${data.document.id}/links/new`}>New link</ButtonLink>
+          </>
+        ) : undefined
+      }
     />
   );
 
@@ -130,6 +147,7 @@ export default function DocumentPage() {
 
     content = (
       <div className={styles.layout}>
+        <ReplaceStatus state={replace.state} title={doc.title} pagesBefore={pagesBefore} onDismiss={replace.reset} />
         <div className={styles.periodRow}>
           <span className={styles.period}>Reporting period · {period}</span>
           <RangeSelect value={range} onChange={setRange} />
@@ -146,7 +164,7 @@ export default function DocumentPage() {
             </h1>
             <p className={headStyles.subtitle}>{subtitle}</p>
           </div>
-          <PageHeatmap documentId={doc.id} pages={data.pages} thumbnailUrl={doc.thumbnailUrl} />
+          <PageHeatmap documentId={doc.id} version={doc.version} pages={data.pages} thumbnailUrl={doc.thumbnailUrl} />
           <HeatLegend />
           <div className={styles.tiles}>
             <StatTile value={stats.views} label={stats.views === 1 ? 'view' : 'views'} />
@@ -155,13 +173,14 @@ export default function DocumentPage() {
             <StatTile value={formatPercent(stats.reachedLastPage)} label="reached the last page" />
           </div>
           <p className={headStyles.footnote}>
-            {countLabel(doc.pageCount, 'page')}, {formatBytes(doc.sizeBytes)}, uploaded {formatDate(doc.createdAt)}.
+            {countLabel(doc.pageCount, 'page')}, {formatBytes(doc.sizeBytes)}, uploaded {formatDate(doc.createdAt)}
+            {doc.replacedAt && `, replaced ${formatDate(doc.replacedAt)} (version ${doc.version})`}.
           </p>
         </section>
 
         <aside className={styles.aside} aria-label="Links and recent views">
           <DocumentLinks documentId={doc.id} links={data.links} />
-          <RecentViews views={data.recentViews} pageCount={doc.pageCount} />
+          <RecentViews views={data.recentViews} />
         </aside>
       </div>
     );

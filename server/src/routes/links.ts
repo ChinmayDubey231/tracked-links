@@ -144,7 +144,7 @@ linksRouter.use(requireAuth);
 linksRouter.get('/:id', async (req, res) => {
   const link = await findOwnedLink(req.params.id, currentUserId(req));
   const doc = await linkDocument(link.documentId);
-  const [stats, detail] = await Promise.all([loadLinkStats([link._id]), loadLinkDetail(link._id, doc.pageCount)]);
+  const [stats, detail] = await Promise.all([loadLinkStats([link._id]), loadLinkDetail(link._id)]);
 
   const body: LinkDetailResponse = {
     link: serializeLink(link, doc.pageCount, stats.get(link._id.toString())),
