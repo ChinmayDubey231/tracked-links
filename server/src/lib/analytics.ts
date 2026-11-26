@@ -32,6 +32,12 @@ export function rangeStart(range: AnalyticsRange, now = new Date()): Date | null
 /** One reader: the email they gave, otherwise their hashed network address. */
 const viewerKey = { $ifNull: ['$viewerEmail', '$ipHash'] };
 
+/** The page count of the version a view read: its `pages` has one slot per page. */
+const viewPageCount = { $max: [{ $size: '$pages' }, 1] };
+
+/** The view reached the last page of the version it read. */
+const readToTheEnd = { $expr: { $gte: ['$maxPageReached', viewPageCount] } };
+
 const round3 = (value: number) => Math.round(value * 1000) / 1000;
 
 /** Counted views, average reading time and the latest view, per link. */
@@ -44,6 +50,7 @@ export async function loadLinkStats(linkIds: Types.ObjectId[]): Promise<Map<stri
     avgReadMs: number;
     lastViewedAt: Date;
     latestMaxPage: number;
+    latestPageCount: number;
   }>([
     { $match: { linkId: { $in: linkIds }, ...countedViewFilter } },
     { $sort: { startedAt: -1 } },
@@ -54,6 +61,7 @@ export async function loadLinkStats(linkIds: Types.ObjectId[]): Promise<Map<stri
         avgReadMs: { $avg: '$totalDurationMs' },
         lastViewedAt: { $first: '$startedAt' },
         latestMaxPage: { $first: '$maxPageReached' },
+        latestPageCount: { $first: viewPageCount },
       },
     },
   ]);
@@ -63,21 +71,29 @@ export async function loadLinkStats(linkIds: Types.ObjectId[]): Promise<Map<stri
       avgReadMs: Math.round(row.avgReadMs),
       lastViewedAt: row.lastViewedAt,
       latestMaxPage: row.latestMaxPage,
+      latestPageCount: row.latestPageCount,
     });
   }
   return stats;
 }
 
 /** The Link views screen's extra numbers: readers, views that reached the end, and the latest view. */
-export async function loadLinkDetail(linkId: Types.ObjectId, pageCount: number) {
+export async function loadLinkDetail(linkId: Types.ObjectId) {
   const match = { linkId, ...countedViewFilter };
   const [unique, reachedLastPage, latest] = await Promise.all([
     View.aggregate<{ count: number }>([{ $match: match }, { $group: { _id: viewerKey } }, { $count: 'count' }]),
-    View.countDocuments({ ...match, maxPageReached: { $gte: pageCount } }),
-    View.findOne(match, { startedAt: 1, viewerEmail: 1, maxPageReached: 1 }).sort({ startedAt: -1 }).lean(),
+    View.countDocuments({ ...match, ...readToTheEnd }),
+    View.findOne(match, { startedAt: 1, viewerEmail: 1, maxPageReached: 1, pageCount: viewPageCount })
+      .sort({ startedAt: -1 })
+      .lean<{ startedAt: Date; viewerEmail?: string | null; maxPageReached: number; pageCount: number }>(),
   ]);
   const latestView: LatestLinkView | null = latest
-    ? { at: latest.startedAt.toISOString(), viewerEmail: latest.viewerEmail ?? null, maxPageReached: latest.maxPageReached }
+    ? {
+        at: latest.startedAt.toISOString(),
+        viewerEmail: latest.viewerEmail ?? null,
+        maxPageReached: latest.maxPageReached,
+        pageCount: latest.pageCount,
+      }
     : null;
   return { uniqueViewers: unique[0]?.count ?? 0, reachedLastPage, latestView };
 }
@@ -87,6 +103,8 @@ interface ReadingFacets {
   viewers: Array<{ count: number }>;
   /** How many views stopped at each furthest page. */
   reached: Array<{ _id: number; count: number }>;
+  /** Views that reached the last page of the version they read. */
+  finished: Array<{ count: number }>;
   /** Active time per page, summed over the views. */
   pageTime: Array<{ _id: number; ms: number }>;
 }
@@ -96,8 +114,8 @@ function summarizeReading(facets: ReadingFacets | undefined, pageCount: number) 
   const totals = facets?.totals[0];
   const views = totals?.views ?? 0;
 
-  // reachedAtLeast[p]: views whose furthest page is p or later. A view of a longer, since-replaced
-  // file counts as reaching the current last page.
+  // reachedAtLeast[p]: views whose furthest page is p or later, for the page reach bars. A view
+  // of a longer, since-replaced file counts as reaching the current last page.
   const reachedAtLeast = new Array<number>(pageCount + 2).fill(0);
   for (const row of facets?.reached ?? []) {
     const page = Math.min(Math.max(row._id, 1), pageCount);
@@ -122,7 +140,8 @@ function summarizeReading(facets: ReadingFacets | undefined, pageCount: number) 
     views,
     uniqueViewers: facets?.viewers[0]?.count ?? 0,
     avgReadMs: totals ? Math.round(totals.avgReadMs) : null,
-    reachedLastPage: views > 0 ? round3(reachedAtLeast[pageCount]! / views) : null,
+    // Each view against the version it read, so a full read of a since-replaced file still counts.
+    reachedLastPage: views > 0 ? round3((facets?.finished[0]?.count ?? 0) / views) : null,
   };
   return { stats, pages, headline: analyticsHeadline(views, pages) };
 }
@@ -137,6 +156,7 @@ export async function loadDocumentReading(documentId: Types.ObjectId, pageCount:
         totals: [{ $group: { _id: null, views: { $sum: 1 }, avgReadMs: { $avg: '$totalDurationMs' } } }],
         viewers: [{ $group: { _id: viewerKey } }, { $count: 'count' }],
         reached: [{ $group: { _id: '$maxPageReached', count: { $sum: 1 } } }],
+        finished: [{ $match: readToTheEnd }, { $count: 'count' }],
         pageTime: [{ $unwind: '$pages' }, { $group: { _id: '$pages.page', ms: { $sum: '$pages.durationMs' } } }],
       },
     },
@@ -146,15 +166,24 @@ export async function loadDocumentReading(documentId: Types.ObjectId, pageCount:
 
 export const RECENT_VIEWS_LIMIT = 5;
 
+interface ViewWithPageCount {
+  _id: Types.ObjectId;
+  startedAt: Date;
+  viewerEmail?: string | null;
+  totalDurationMs: number;
+  maxPageReached: number;
+  pageCount: number;
+}
+
 /** The latest views of a document across its links, newest first. */
 export async function loadRecentViews(documentId: Types.ObjectId, linkLabels: Map<string, string>): Promise<RecentView[]> {
   const rows = await View.find(
     { documentId, ...countedViewFilter },
-    { linkId: 1, viewerEmail: 1, startedAt: 1, totalDurationMs: 1, maxPageReached: 1 },
+    { linkId: 1, viewerEmail: 1, startedAt: 1, totalDurationMs: 1, maxPageReached: 1, pageCount: viewPageCount },
   )
     .sort({ startedAt: -1 })
     .limit(RECENT_VIEWS_LIMIT)
-    .lean();
+    .lean<Array<ViewWithPageCount & { linkId: Types.ObjectId }>>();
   return rows.map((row) => ({
     id: row._id.toString(),
     linkId: row.linkId.toString(),
@@ -163,6 +192,7 @@ export async function loadRecentViews(documentId: Types.ObjectId, linkLabels: Ma
     startedAt: row.startedAt.toISOString(),
     totalDurationMs: row.totalDurationMs,
     maxPageReached: row.maxPageReached,
+    pageCount: row.pageCount,
   }));
 }
 
@@ -203,10 +233,11 @@ export async function loadLinkViews(
       device: 1,
       browser: 1,
       os: 1,
+      pageCount: viewPageCount,
     })
       .sort({ startedAt: -1, _id: -1 })
       .limit(limit + 1)
-      .lean(),
+      .lean<Array<ViewWithPageCount & { device?: string | null; browser?: string | null; os?: string | null }>>(),
     View.countDocuments(match),
   ]);
 
@@ -219,6 +250,7 @@ export async function loadLinkViews(
       viewerEmail: row.viewerEmail ?? null,
       totalDurationMs: row.totalDurationMs,
       maxPageReached: row.maxPageReached,
+      pageCount: row.pageCount,
       device: row.device ?? null,
       browser: row.browser ?? null,
       os: row.os ?? null,

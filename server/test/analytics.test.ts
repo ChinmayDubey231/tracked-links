@@ -194,7 +194,12 @@ describe('GET /links/:id', () => {
     const res = await request(app).get(`/links/${tcs}`).set('Authorization', `Bearer ${owner.token}`).expect(200);
     expect(res.body.uniqueViewers).toBe(2);
     expect(res.body.reachedLastPage).toBe(2);
-    expect(res.body.latestView).toEqual({ at: expect.any(String), viewerEmail: 'priya.s@example.com', maxPageReached: 4 });
+    expect(res.body.latestView).toEqual({
+      at: expect.any(String),
+      viewerEmail: 'priya.s@example.com',
+      maxPageReached: 4,
+      pageCount: 4,
+    });
     expect(res.body.link).toMatchObject({ views: 3, reading: { state: 'read' } });
   });
 

@@ -155,6 +155,8 @@ export interface LatestLinkView {
   at: string;
   viewerEmail: string | null;
   maxPageReached: number;
+  /** Pages in the version this view read; differs from the document's after a replace. */
+  pageCount: number;
 }
 
 export interface LinkDetailResponse {
@@ -175,6 +177,8 @@ export interface ViewRow {
   viewerEmail: string | null;
   totalDurationMs: number;
   maxPageReached: number;
+  /** Pages in the version this view read. */
+  pageCount: number;
   device: string | null;
   browser: string | null;
   os: string | null;
@@ -223,6 +227,8 @@ export interface RecentView {
   startedAt: string;
   totalDurationMs: number;
   maxPageReached: number;
+  /** Pages in the version this view read. */
+  pageCount: number;
 }
 
 export interface DocumentAnalyticsResponse {
