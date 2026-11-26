@@ -1,13 +1,13 @@
 import { useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { MAX_UPLOAD_BYTES, formatBytes, type DocumentSummary } from '@tracked-links/shared';
-import { errorMessage, uploadDocument } from './api';
+import { errorMessage, replaceDocumentFile, uploadDocument, type UploadProgress } from './api';
 
 export type UploadState =
   | { status: 'idle' }
   | { status: 'preparing'; fileName: string }
   | { status: 'uploading'; fileName: string; progress: number }
-  | { status: 'done'; document: DocumentSummary }
+  | { status: 'done'; fileName: string; document: DocumentSummary }
   | { status: 'error'; message: string };
 
 /** Quick checks before uploading. The server checks the file content again. */
@@ -21,7 +21,10 @@ export function validatePdfFile(file: File): string | null {
   return null;
 }
 
-export function useDocumentUpload() {
+type SendPdf = (file: File, thumbnail: Blob | null, onProgress: UploadProgress) => Promise<DocumentSummary>;
+
+/** Check the file, render its first page as the thumbnail, send it with progress, then refresh the documents. */
+function usePdfSend(send: SendPdf) {
   const queryClient = useQueryClient();
   const [state, setState] = useState<UploadState>({ status: 'idle' });
 
@@ -40,18 +43,35 @@ export function useDocumentUpload() {
 
       setState({ status: 'uploading', fileName: file.name, progress: 0 });
       try {
-        const document = await uploadDocument(file, thumbnail, (progress) =>
+        const document = await send(file, thumbnail, (progress) =>
           setState({ status: 'uploading', fileName: file.name, progress }),
         );
-        setState({ status: 'done', document });
+        setState({ status: 'done', fileName: file.name, document });
         await queryClient.invalidateQueries({ queryKey: ['documents'] });
       } catch (error) {
         setState({ status: 'error', message: errorMessage(error) });
       }
     },
-    [queryClient],
+    [queryClient, send],
   );
 
+  const reset = useCallback(() => setState({ status: 'idle' }), []);
   const busy = state.status === 'preparing' || state.status === 'uploading';
-  return { state, start, busy };
+  return { state, start, reset, busy };
+}
+
+export function useDocumentUpload() {
+  return usePdfSend(uploadDocument);
+}
+
+/** Replacing a document's file: same checks and progress as an upload. */
+export function useFileReplace(documentId: string | undefined) {
+  const send = useCallback<SendPdf>(
+    (file, thumbnail, onProgress) => {
+      if (!documentId) return Promise.reject(new Error('No document to replace'));
+      return replaceDocumentFile(documentId, file, thumbnail, onProgress);
+    },
+    [documentId],
+  );
+  return usePdfSend(send);
 }
