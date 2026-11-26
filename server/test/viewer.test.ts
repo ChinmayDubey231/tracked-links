@@ -65,7 +65,13 @@ describe('POST /v/:slug/access', () => {
     expect(body.pageCount).toBe(4);
 
     const view = await View.findById(body.view.id).lean();
-    expect(view).toMatchObject({ device: 'Desktop', browser: 'Chrome', os: 'Windows', totalDurationMs: 0 });
+    expect(view).toMatchObject({
+      device: 'Desktop',
+      browser: 'Chrome',
+      os: 'Windows',
+      totalDurationMs: 0,
+      documentVersion: 1,
+    });
     expect(view!.linkId.toString()).toBe(linkId);
     expect(view!.pages.map((p) => p.page)).toEqual([1, 2, 3, 4]);
     expect(view!.ipHash).toMatch(/^[a-f0-9]{64}$/);

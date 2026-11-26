@@ -12,6 +12,8 @@ const pageTimeSchema = new Schema(
 const viewSchema = new Schema({
   linkId: { type: Schema.Types.ObjectId, ref: 'Link', required: true },
   documentId: { type: Schema.Types.ObjectId, ref: 'Document', required: true },
+  /** Document.version when the view started. Its `pages` array has that version's page count. */
+  documentVersion: { type: Number, default: 1 },
   viewerEmail: { type: String, default: null, lowercase: true, trim: true },
   startedAt: { type: Date, default: () => new Date() },
   lastSeenAt: { type: Date, default: () => new Date() },

@@ -138,6 +138,7 @@ viewerRouter.post<{ slug: string }>('/:slug/access', accessLimiter, async (req, 
     const created = await View.create({
       linkId: link._id,
       documentId: doc._id,
+      documentVersion: doc.version ?? 1,
       viewerEmail,
       pages: Array.from({ length: doc.pageCount }, (_, index) => ({ page: index + 1, durationMs: 0 })),
       maxPageReached: 1,
