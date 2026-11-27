@@ -3,15 +3,15 @@ import { Document, Page } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import type { AccessResponse, SignedFileResponse } from '@tracked-links/shared';
-import { AppFooter } from '../../components/AppFooter';
 import { Button } from '../../components/Button';
-import { LogoMark } from '../../components/LogoMark';
-import { ErrorState, FormAlert, LoadingState } from '../../components/States';
+import { ErrorState, FormAlert } from '../../components/States';
 import { api, errorMessage } from '../../lib/api';
 import { cx } from '../../lib/cx';
 import '../../lib/pdf';
 import { usePdfBlob } from '../../lib/usePdfBlob';
+import { ReaderFrame, ZoomGroup } from './ReaderFrame';
 import { useReadingTracker } from './tracker';
+import { LoadingSheet } from './ViewerLoading';
 import styles from './Viewer.module.css';
 
 /** Widest a page is drawn at 100%, as in the design. */
@@ -31,15 +31,6 @@ interface PageSize {
 interface PdfProxy {
   numPages: number;
   getPage: (pageNumber: number) => Promise<{ getViewport: (options: { scale: number }) => PageSize }>;
-}
-
-function ZoomIcon({ plus }: { plus?: boolean }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-      {plus && <path d="M12 5v14" />}
-      <path d="M5 12h14" />
-    </svg>
-  );
 }
 
 /** Tracks the width available for pages. */
@@ -93,8 +84,9 @@ function useCurrentPage(container: HTMLElement | null, count: number, topOffset:
 
 /** The public PDF reader (design/screens/viewer.html), with reading-time tracking. */
 export default function Reader({ slug, access }: { slug: string; access: AccessResponse }) {
-  const { blob, failed } = usePdfBlob(access.file.url);
+  const { blob, failed, progress: downloaded } = usePdfBlob(access.file.url);
   const [pageSizes, setPageSizes] = useState<PageSize[]>([]);
+  const [firstPageDrawn, setFirstPageDrawn] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const [pagesRef, availableWidth] = useWidth<HTMLDivElement>();
@@ -106,9 +98,10 @@ export default function Reader({ slug, access }: { slug: string; access: AccessR
   const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const numPages = pageSizes.length;
-  const loaded = numPages > 0;
+  // The loading sheet stays until page 1 is drawn, so the reader never sees a blank page.
+  const ready = numPages > 0 && firstPageDrawn;
   const currentPage = useCurrentPage(pagesElement, numPages, headerHeight);
-  const reportPage = useReadingTracker(access.view, loaded);
+  const reportPage = useReadingTracker(access.view, ready);
 
   useEffect(() => reportPage(currentPage), [currentPage, reportPage]);
 
@@ -167,11 +160,11 @@ export default function Reader({ slug, access }: { slug: string; access: AccessR
 
   const totalPages = numPages || access.pageCount;
   const shownPage = Math.min(currentPage, totalPages);
-  const progress = Math.round((shownPage / Math.max(totalPages, 1)) * 100);
   const pageWidth = Math.max(Math.min(BASE_PAGE_WIDTH, availableWidth) * ZOOM_LEVELS[zoom]!, 120);
+  const broken = failed || loadError;
 
   let body;
-  if (failed || loadError) {
+  if (broken) {
     body = (
       <div className={styles.readerMessage}>
         <ErrorState title="This document didn't load" message="Check your internet connection, then reload the page to try again.">
@@ -181,131 +174,97 @@ export default function Reader({ slug, access }: { slug: string; access: AccessR
         </ErrorState>
       </div>
     );
-  } else if (!blob) {
-    body = (
-      <div className={styles.readerMessage}>
-        <LoadingState label="Loading the document…" />
-      </div>
-    );
   } else {
+    // The sheet keeps its place while the file downloads, pdf.js reads it and page 1 is drawn.
+    // The Document mounts underneath, hidden, as soon as the file is in.
     // suspense={false}: react-pdf 11 loads through Suspense by default. Each page load would then
     // swap the whole reader for ViewerPage's Suspense fallback and, under StrictMode, re-run this
     // component's effects (downloading the PDF again, in a loop). Pages inherit the setting.
     body = (
-      <Document
-        suspense={false}
-        file={blob}
-        onLoadSuccess={(pdf) => void onLoadSuccess(pdf as unknown as PdfProxy)}
-        onLoadError={() => setLoadError(true)}
-        loading={
-          <div className={styles.readerMessage}>
-            <LoadingState label="Preparing the pages…" />
-          </div>
-        }
-        error={null}
-        externalLinkTarget="_blank"
-        externalLinkRel="noopener noreferrer nofollow"
-        className={styles.document}
-      >
-        {pageSizes.map((size, index) => {
-          const pageNumber = index + 1;
-          return (
-            <div
-              key={pageNumber}
-              data-page={pageNumber}
-              className={styles.paper}
-              style={{ width: pageWidth, height: (pageWidth * size.height) / size.width }}
-            >
-              {rendered.has(pageNumber) && (
-                <Page
-                  pageNumber={pageNumber}
-                  width={pageWidth}
-                  loading={null}
-                  renderTextLayer
-                  renderAnnotationLayer
-                />
-              )}
-            </div>
-          );
-        })}
-      </Document>
+      <>
+        {!ready && <LoadingSheet step={blob ? 'pages' : 'file'} progress={downloaded} />}
+        {blob && (
+          <Document
+            suspense={false}
+            file={blob}
+            onLoadSuccess={(pdf) => void onLoadSuccess(pdf as unknown as PdfProxy)}
+            onLoadError={() => setLoadError(true)}
+            loading={null}
+            error={null}
+            externalLinkTarget="_blank"
+            externalLinkRel="noopener noreferrer nofollow"
+            className={cx(styles.document, !ready && styles.documentPending)}
+          >
+            {pageSizes.map((size, index) => {
+              const pageNumber = index + 1;
+              const isFirst = pageNumber === 1;
+              return (
+                <div
+                  key={pageNumber}
+                  data-page={pageNumber}
+                  className={styles.paper}
+                  style={{ width: pageWidth, height: (pageWidth * size.height) / size.width }}
+                >
+                  {rendered.has(pageNumber) && (
+                    <Page
+                      pageNumber={pageNumber}
+                      width={pageWidth}
+                      loading={null}
+                      renderTextLayer
+                      renderAnnotationLayer
+                      // A page that fails to draw still lets the reader in rather than loading forever.
+                      onRenderSuccess={isFirst ? () => setFirstPageDrawn(true) : undefined}
+                      onRenderError={isFirst ? () => setFirstPageDrawn(true) : undefined}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </Document>
+        )}
+      </>
     );
   }
 
   return (
-    <div className={styles.readerShell}>
-      <header ref={headerRef} className={styles.readerHeader}>
-        <div className={cx('container', styles.readerHeaderInner)}>
-          <div className={styles.readerTitleGroup}>
-            <span className={styles.brand}>
-              <LogoMark />
-              Tracked Links
-            </span>
-            <h1 className={styles.docTitle}>{access.title}</h1>
-          </div>
-          <div className={styles.readerControls}>
-            <span className={styles.pageCount}>
-              Page {shownPage} of {totalPages}
-            </span>
-            <div className={styles.zoomGroup} role="group" aria-label="Zoom">
-              <button
-                type="button"
-                className={styles.zoomButton}
-                aria-label="Zoom out"
-                disabled={zoom === 0}
-                onClick={() => setZoom((value) => Math.max(0, value - 1))}
-              >
-                <ZoomIcon />
-              </button>
-              <button
-                type="button"
-                className={styles.zoomButton}
-                aria-label="Zoom in"
-                disabled={zoom === ZOOM_LEVELS.length - 1}
-                onClick={() => setZoom((value) => Math.min(ZOOM_LEVELS.length - 1, value + 1))}
-              >
-                <ZoomIcon plus />
-              </button>
-              <span className="visually-hidden" role="status">
-                {zoom === DEFAULT_ZOOM ? '' : `Zoom ${Math.round(ZOOM_LEVELS[zoom]! * 100)}%`}
-              </span>
-            </div>
-            {access.allowDownload && (
-              <Button onClick={() => void download()} loading={downloading}>
-                Download
-              </Button>
-            )}
-          </div>
-        </div>
-        <div
-          className={styles.progressTrack}
-          role="progressbar"
-          aria-label="Reading progress"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={progress}
-          aria-valuetext={`Page ${shownPage} of ${totalPages}`}
-        >
-          <div className={styles.progressFill} style={{ width: `${progress}%` }} />
-        </div>
-      </header>
-
-      {(access.view === null || downloadError) && (
-        <div className={cx('container', styles.notices)}>
-          {access.view === null && (
-            <p className={styles.previewNotice}>This is your own link, so this visit is not recorded.</p>
+    <ReaderFrame
+      title={access.title}
+      pageLabel={`Page ${shownPage} of ${totalPages}`}
+      headerRef={headerRef}
+      loading={!ready && !broken}
+      reading={ready ? { page: shownPage, total: totalPages } : undefined}
+      controls={
+        <>
+          <ZoomGroup
+            onZoomOut={ready && zoom > 0 ? () => setZoom((value) => Math.max(0, value - 1)) : undefined}
+            onZoomIn={
+              ready && zoom < ZOOM_LEVELS.length - 1
+                ? () => setZoom((value) => Math.min(ZOOM_LEVELS.length - 1, value + 1))
+                : undefined
+            }
+            status={zoom === DEFAULT_ZOOM ? '' : `Zoom ${Math.round(ZOOM_LEVELS[zoom]! * 100)}%`}
+          />
+          {access.allowDownload && (
+            <Button onClick={() => void download()} loading={downloading}>
+              Download
+            </Button>
           )}
-          {downloadError && <FormAlert>{downloadError}</FormAlert>}
-        </div>
-      )}
-
-      <main id="main" tabIndex={-1} className={styles.readerMain}>
-        <div ref={setPagesNode} className={styles.pages}>
-          {body}
-        </div>
-      </main>
-
-      <AppFooter variant="reader" />
-    </div>
+        </>
+      }
+      notices={
+        (access.view === null || downloadError) && (
+          <div className={cx('container', styles.notices)}>
+            {access.view === null && (
+              <p className={styles.previewNotice}>This is your own link, so this visit is not recorded.</p>
+            )}
+            {downloadError && <FormAlert>{downloadError}</FormAlert>}
+          </div>
+        )
+      }
+    >
+      <div ref={setPagesNode} className={styles.pages}>
+        {body}
+      </div>
+    </ReaderFrame>
   );
 }

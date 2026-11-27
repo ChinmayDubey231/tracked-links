@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import type { AccessRequest, AccessResponse, PublicLinkResponse } from '@tracked-links/shared';
 import { AppFooter } from '../../components/AppFooter';
 import { Button } from '../../components/Button';
-import { LoadingState } from '../../components/States';
 import { LogoMark } from '../../components/LogoMark';
 import { api, ApiError, errorMessage } from '../../lib/api';
 import { cx } from '../../lib/cx';
@@ -12,6 +11,7 @@ import { usePageTitle } from '../../lib/usePageTitle';
 import { isAutomatedBrowser } from './automation';
 import { loadReader, preloadReader } from './loadReader';
 import { ViewerGate } from './ViewerGate';
+import { ViewerLoading } from './ViewerLoading';
 import styles from './Viewer.module.css';
 
 // pdf.js is large: it loads alongside the access request, never before the gate appears.
@@ -79,7 +79,15 @@ export function ViewerProblem({ error, onRetry }: { error: unknown; onRetry?: ()
 }
 
 /** Opens a link that has no gate straight away. Runs once, even under StrictMode, so it starts one View. */
-function AutoOpen({ slug, onAccess }: { slug: string; onAccess: (access: AccessResponse) => void }) {
+function AutoOpen({
+  slug,
+  info,
+  onAccess,
+}: {
+  slug: string;
+  info: PublicLinkResponse;
+  onAccess: (access: AccessResponse) => void;
+}) {
   const [error, setError] = useState<unknown>(null);
   const started = useRef(false);
 
@@ -96,11 +104,14 @@ function AutoOpen({ slug, onAccess }: { slug: string; onAccess: (access: AccessR
     open();
   }, [open]);
 
-  return (
-    <GateShell>
-      {error ? <ViewerProblem error={error} onRetry={open} /> : <LoadingState label="Opening the document…" />}
-    </GateShell>
-  );
+  if (error) {
+    return (
+      <GateShell>
+        <ViewerProblem error={error} onRetry={open} />
+      </GateShell>
+    );
+  }
+  return <ViewerLoading step="link" title={info.title} pageCount={info.pageCount} />;
 }
 
 /**
@@ -124,9 +135,12 @@ export default function ViewerPage() {
     return (
       <Suspense
         fallback={
-          <GateShell>
-            <LoadingState label="Opening the document…" />
-          </GateShell>
+          <ViewerLoading
+            step="file"
+            title={access.title}
+            pageCount={access.pageCount}
+            allowDownload={access.allowDownload}
+          />
         }
       >
         <Reader slug={slug} access={access} />
@@ -134,13 +148,8 @@ export default function ViewerPage() {
     );
   }
 
-  if (info.isPending) {
-    return (
-      <GateShell>
-        <LoadingState label="Loading the document…" />
-      </GateShell>
-    );
-  }
+  // Most links have no gate, so the wait looks like the reader rather than the gate.
+  if (info.isPending) return <ViewerLoading step="link" />;
 
   if (info.isError) {
     return (
@@ -158,5 +167,5 @@ export default function ViewerPage() {
     );
   }
 
-  return <AutoOpen slug={slug} onAccess={setAccess} />;
+  return <AutoOpen slug={slug} info={info.data} onAccess={setAccess} />;
 }
