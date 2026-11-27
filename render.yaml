@@ -1,0 +1,56 @@
+# Render Blueprint for the API (the frontend is on Vercel).
+# In Render: New > Blueprint, choose this repository. Render asks for each `sync: false`
+# value once, when it creates the service. See README "Deploying".
+services:
+  - type: web
+    name: tracked-links-api
+    runtime: node
+    plan: free
+    # Closest Render region to a MongoDB Atlas cluster in Mumbai (ap-south-1). Can't be changed later.
+    region: singapore
+    # devDependencies hold the build tools; NODE_ENV=production would otherwise skip them.
+    buildCommand: npm ci --include=dev && npm run build -w server
+    startCommand: npm run start -w server
+    healthCheckPath: /health
+    # Deploy main only after the CI workflow passes.
+    autoDeployTrigger: checksPass
+    buildFilter:
+      paths:
+        - server/**
+        - shared/**
+        - package.json
+        - package-lock.json
+        - render.yaml
+      ignoredPaths:
+        - server/test/**
+        - shared/**/*.test.ts
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      # Render's proxy sits in front of the app: rate limits and IP hashing need the real client IP.
+      - key: TRUST_PROXY
+        value: "1"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: IP_HASH_SALT
+        generateValue: true
+      # API_BASE_URL is not needed: Render sets RENDER_EXTERNAL_URL, which the API uses.
+      - key: MONGODB_URI
+        sync: false
+      # The Vercel address, e.g. https://tracked-links.vercel.app (no trailing slash).
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false

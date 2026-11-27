@@ -8,5 +8,6 @@ coverage/
 # Local-disk storage used in development
 server/storage/
 server/storage-test/
+server/storage-demo/
 .DS_Store
 Thumbs.db

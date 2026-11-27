@@ -52,3 +52,13 @@ export const uploadLimiter = limiter({
   keyGenerator: (req) => req.userId ?? 'anonymous',
   message: 'You have uploaded a lot of files in the last hour. Wait a while, then try again.',
 });
+
+/**
+ * Every owner route (/documents, /links): a ceiling far above what the dashboard sends,
+ * so a script or a stuck loop can't hammer the database. Counted per IP.
+ */
+export const ownerApiLimiter = limiter({
+  windowMs: 10 * 60 * 1000,
+  limit: 1000,
+  message: 'Too many requests in the last few minutes. Wait a moment, then reload the page.',
+});

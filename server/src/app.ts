@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import mongoose from 'mongoose';
 import { config } from './config';
 import { errorHandler, notFoundHandler } from './middleware/error';
+import { ownerApiLimiter } from './middleware/rateLimits';
 import { authRouter } from './routes/auth';
 import { documentsRouter } from './routes/documents';
 import { filesRouter } from './routes/files';
@@ -33,9 +34,9 @@ export function createApp() {
   });
 
   app.use('/auth', authRouter);
-  app.use('/documents', documentsRouter);
+  app.use('/documents', ownerApiLimiter, documentsRouter);
   app.use('/files', filesRouter);
-  app.use('/links', linksRouter);
+  app.use('/links', ownerApiLimiter, linksRouter);
   // Public: what a reader's browser calls. No account needed.
   app.use('/v', viewerRouter);
   app.use('/views', viewsRouter);
