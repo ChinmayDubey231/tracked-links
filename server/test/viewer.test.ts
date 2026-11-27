@@ -71,11 +71,28 @@ describe('POST /v/:slug/access', () => {
       os: 'Windows',
       totalDurationMs: 0,
       documentVersion: 1,
+      isBot: false,
     });
     expect(view!.linkId.toString()).toBe(linkId);
     expect(view!.pages.map((p) => p.page)).toEqual([1, 2, 3, 4]);
     expect(view!.ipHash).toMatch(/^[a-f0-9]{64}$/);
     expect(view!.ipHash).not.toContain('127.0.0.1');
+  });
+
+  it('marks link previewers, crawlers and automated browsers as bots', async () => {
+    const { slug } = await sharedLink();
+    const slack = await request(app)
+      .post(`/v/${slug}/access`)
+      .set('User-Agent', 'Slackbot-LinkExpanding 1.0 (+https://api.slack.com/robots)')
+      .send({})
+      .expect(201);
+    const driven = await openLink(slug, { automated: true });
+    const person = await openLink(slug);
+
+    const isBot = async (id: string) => (await View.findById(id).lean())!.isBot;
+    expect(await isBot(slack.body.view.id)).toBe(true);
+    expect(await isBot(driven.view.id)).toBe(true);
+    expect(await isBot(person.view.id)).toBe(false);
   });
 
   it('returns a signed file URL that serves the PDF', async () => {

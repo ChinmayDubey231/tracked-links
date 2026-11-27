@@ -5,6 +5,7 @@ import request from 'supertest';
 import { createApp } from '../src/app';
 import { config } from '../src/config';
 import { connectDatabase, disconnectDatabase } from '../src/db';
+import { settleFirstOpenEmails } from '../src/lib/firstOpen';
 
 export const app = createApp();
 
@@ -15,6 +16,7 @@ export async function setupDatabase() {
 }
 
 export async function teardownDatabase() {
+  await settleFirstOpenEmails();
   await mongoose.connection.dropDatabase();
   await disconnectDatabase();
   await rm(config.LOCAL_STORAGE_DIR, { recursive: true, force: true });

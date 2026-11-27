@@ -1,6 +1,8 @@
 import { config } from './config';
 import { createApp } from './app';
 import { connectDatabase, disconnectDatabase } from './db';
+import { settleFirstOpenEmails } from './lib/firstOpen';
+import { mailer } from './services/email';
 
 async function main() {
   await connectDatabase(config.MONGODB_URI);
@@ -8,15 +10,20 @@ async function main() {
   if (config.isProduction && config.storageDriver === 'local') {
     console.warn('Warning: using local disk storage in production. Files are lost when the server restarts. Set the S3_* variables.');
   }
+  if (config.isProduction && mailer.name !== 'resend') {
+    console.warn('Warning: RESEND_API_KEY is empty, so first-open emails are printed to the log instead of sent.');
+  }
 
   const server = createApp().listen(config.PORT, () => {
-    console.log(`API listening on ${config.apiBaseUrl} (storage: ${config.storageDriver})`);
+    console.log(`API listening on ${config.apiBaseUrl} (storage: ${config.storageDriver}, email: ${mailer.name})`);
   });
 
   const shutdown = (signal: string) => {
     console.log(`${signal} received, shutting down.`);
     server.close(() => {
-      disconnectDatabase().finally(() => process.exit(0));
+      settleFirstOpenEmails()
+        .then(() => disconnectDatabase())
+        .finally(() => process.exit(0));
     });
   };
   process.on('SIGTERM', () => shutdown('SIGTERM'));

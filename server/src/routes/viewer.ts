@@ -8,6 +8,8 @@ import type {
   PublicLinkResponse,
   SignedFileResponse,
 } from '@tracked-links/shared';
+import { isLikelyBot } from '../lib/bots';
+import { queueFirstOpenEmail } from '../lib/firstOpen';
 import { HttpError } from '../lib/httpError';
 import { SLUG_PATTERN, linkStatus } from '../lib/links';
 import { parseUserAgent } from '../lib/userAgent';
@@ -27,7 +29,7 @@ const MAX_SESSION_MS = 12 * 60 * 60 * 1000;
 
 const LINK_NOT_FOUND = new HttpError(
   404,
-  "This link doesn't exist. Check that you copied the whole address, or ask the person who sent it.",
+  'Nothing is shared at this address. Check that you copied the whole link, or ask the person who sent it for a new one.',
   { code: 'link_not_found' },
 );
 
@@ -47,9 +49,11 @@ async function loadOpenLink(slug: string) {
     });
   }
   if (status === 'expired') {
-    throw new HttpError(410, 'This link has expired. Ask the person who shared it for a new one.', {
-      code: 'link_expired',
-    });
+    throw new HttpError(
+      410,
+      'The person who shared this document set an end date for this link, and it has passed. Ask them for a new one.',
+      { code: 'link_expired' },
+    );
   }
 
   const doc = await DocumentModel.findById(link.documentId);
@@ -60,6 +64,8 @@ async function loadOpenLink(slug: string) {
 const accessSchema = z.object({
   email: z.string().trim().toLowerCase().max(254).optional(),
   password: z.string().max(200).optional(),
+  /** navigator.webdriver: the page is driven by Selenium, Puppeteer or Playwright. */
+  automated: z.boolean().optional(),
 });
 
 const emailSchema = z.email();
@@ -135,6 +141,7 @@ viewerRouter.post<{ slug: string }>('/:slug/access', accessLimiter, async (req, 
   const isOwner = optionalUserId(req) === link.ownerId.toString();
   let view: AccessResponse['view'] = null;
   if (!isOwner) {
+    const userAgent = req.get('user-agent');
     const created = await View.create({
       linkId: link._id,
       documentId: doc._id,
@@ -142,8 +149,9 @@ viewerRouter.post<{ slug: string }>('/:slug/access', accessLimiter, async (req, 
       viewerEmail,
       pages: Array.from({ length: doc.pageCount }, (_, index) => ({ page: index + 1, durationMs: 0 })),
       maxPageReached: 1,
-      ...parseUserAgent(req.get('user-agent')),
+      ...parseUserAgent(userAgent),
       ipHash: hashIp(req.ip),
+      isBot: input.automated === true || isLikelyBot(userAgent),
     });
     const id = created._id.toString();
     view = { id, token: viewToken(id) };
@@ -211,6 +219,7 @@ export const viewsRouter = Router();
 /**
  * Adds reading time with $inc, so heartbeats from the same tab never overwrite
  * each other. Answers 204 with no body: the beacon on close can't read a reply.
+ * The view's first reading time makes it count, which may mean the link's first-open email.
  */
 viewsRouter.post<{ viewId: string }>(
   '/:viewId/heartbeat',
@@ -223,7 +232,14 @@ viewsRouter.post<{ viewId: string }>(
       throw new HttpError(403, 'This reading session is not valid. Reload the page.', { code: 'invalid_view_token' });
     }
 
-    const view = await View.findById(viewId, { startedAt: 1, pages: 1 }).lean();
+    const view = await View.findById(viewId, {
+      linkId: 1,
+      startedAt: 1,
+      pages: 1,
+      totalDurationMs: 1,
+      viewerEmail: 1,
+      isBot: 1,
+    }).lean();
     if (!view) throw new HttpError(404, 'This reading session has ended. Reload the page.', { code: 'not_found' });
     if (Date.now() - view.startedAt.getTime() > MAX_SESSION_MS) {
       res.status(204).end();
@@ -249,6 +265,7 @@ viewsRouter.post<{ viewId: string }>(
         ...(total > 0 && { $inc: { ...inc, totalDurationMs: total } }),
       },
     );
+    if (total > 0 && view.totalDurationMs === 0 && !view.isBot) queueFirstOpenEmail(view);
     res.status(204).end();
   },
 );

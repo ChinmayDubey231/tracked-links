@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-import type { AccessResponse, PublicLinkResponse } from '@tracked-links/shared';
+import type { AccessRequest, AccessResponse, PublicLinkResponse } from '@tracked-links/shared';
 import { AppFooter } from '../../components/AppFooter';
 import { Button } from '../../components/Button';
 import { LoadingState } from '../../components/States';
@@ -9,6 +9,7 @@ import { LogoMark } from '../../components/LogoMark';
 import { api, ApiError, errorMessage } from '../../lib/api';
 import { cx } from '../../lib/cx';
 import { usePageTitle } from '../../lib/usePageTitle';
+import { isAutomatedBrowser } from './automation';
 import { ViewerGate } from './ViewerGate';
 import styles from './Viewer.module.css';
 
@@ -83,7 +84,8 @@ function AutoOpen({ slug, onAccess }: { slug: string; onAccess: (access: AccessR
 
   const open = useCallback(() => {
     setError(null);
-    api<AccessResponse>(`/v/${encodeURIComponent(slug)}/access`, { method: 'POST', body: {} }).then(onAccess, setError);
+    const body: AccessRequest = { automated: isAutomatedBrowser() };
+    api<AccessResponse>(`/v/${encodeURIComponent(slug)}/access`, { method: 'POST', body }).then(onAccess, setError);
   }, [slug, onAccess]);
 
   useEffect(() => {
