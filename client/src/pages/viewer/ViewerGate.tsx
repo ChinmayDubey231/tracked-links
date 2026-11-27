@@ -5,6 +5,7 @@ import { Button } from '../../components/Button';
 import { FormAlert } from '../../components/States';
 import { TextField } from '../../components/TextField';
 import { api, ApiError, errorMessage } from '../../lib/api';
+import { isAutomatedBrowser } from './automation';
 import styles from './Viewer.module.css';
 
 type Errors = Partial<Record<'email' | 'password', string>>;
@@ -56,7 +57,7 @@ export function ViewerGate({
       return;
     }
 
-    const body: AccessRequest = {};
+    const body: AccessRequest = { automated: isAutomatedBrowser() };
     if (info.requireEmail) body.email = email.trim();
     if (info.requirePassword) body.password = password;
 
