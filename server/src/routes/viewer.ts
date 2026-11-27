@@ -27,7 +27,7 @@ const MAX_SESSION_MS = 12 * 60 * 60 * 1000;
 
 const LINK_NOT_FOUND = new HttpError(
   404,
-  "This link doesn't exist. Check that you copied the whole address, or ask the person who sent it.",
+  'Nothing is shared at this address. Check that you copied the whole link, or ask the person who sent it for a new one.',
   { code: 'link_not_found' },
 );
 
@@ -47,9 +47,11 @@ async function loadOpenLink(slug: string) {
     });
   }
   if (status === 'expired') {
-    throw new HttpError(410, 'This link has expired. Ask the person who shared it for a new one.', {
-      code: 'link_expired',
-    });
+    throw new HttpError(
+      410,
+      'The person who shared this document set an end date for this link, and it has passed. Ask them for a new one.',
+      { code: 'link_expired' },
+    );
   }
 
   const doc = await DocumentModel.findById(link.documentId);
