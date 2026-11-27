@@ -259,6 +259,8 @@ export interface PublicLinkResponse {
 export interface AccessRequest {
   email?: string;
   password?: string;
+  /** navigator.webdriver is true: an automated browser, recorded as a bot. */
+  automated?: boolean;
 }
 
 export interface AccessResponse {

@@ -28,6 +28,7 @@ const viewSchema = new Schema({
   country: { type: String, default: null },
   /** Salted SHA-256 of the viewer's IP address. The raw address is never stored. */
   ipHash: { type: String, default: null },
+  /** A crawler, link previewer or automated browser (lib/bots.ts). Kept, but left out of every number. */
   isBot: { type: Boolean, default: false },
 });
 

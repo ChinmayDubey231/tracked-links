@@ -8,6 +8,7 @@ import type {
   PublicLinkResponse,
   SignedFileResponse,
 } from '@tracked-links/shared';
+import { isLikelyBot } from '../lib/bots';
 import { HttpError } from '../lib/httpError';
 import { SLUG_PATTERN, linkStatus } from '../lib/links';
 import { parseUserAgent } from '../lib/userAgent';
@@ -62,6 +63,8 @@ async function loadOpenLink(slug: string) {
 const accessSchema = z.object({
   email: z.string().trim().toLowerCase().max(254).optional(),
   password: z.string().max(200).optional(),
+  /** navigator.webdriver: the page is driven by Selenium, Puppeteer or Playwright. */
+  automated: z.boolean().optional(),
 });
 
 const emailSchema = z.email();
@@ -137,6 +140,7 @@ viewerRouter.post<{ slug: string }>('/:slug/access', accessLimiter, async (req, 
   const isOwner = optionalUserId(req) === link.ownerId.toString();
   let view: AccessResponse['view'] = null;
   if (!isOwner) {
+    const userAgent = req.get('user-agent');
     const created = await View.create({
       linkId: link._id,
       documentId: doc._id,
@@ -144,8 +148,9 @@ viewerRouter.post<{ slug: string }>('/:slug/access', accessLimiter, async (req, 
       viewerEmail,
       pages: Array.from({ length: doc.pageCount }, (_, index) => ({ page: index + 1, durationMs: 0 })),
       maxPageReached: 1,
-      ...parseUserAgent(req.get('user-agent')),
+      ...parseUserAgent(userAgent),
       ipHash: hashIp(req.ip),
+      isBot: input.automated === true || isLikelyBot(userAgent),
     });
     const id = created._id.toString();
     view = { id, token: viewToken(id) };
