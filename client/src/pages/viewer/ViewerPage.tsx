@@ -10,11 +10,12 @@ import { api, ApiError, errorMessage } from '../../lib/api';
 import { cx } from '../../lib/cx';
 import { usePageTitle } from '../../lib/usePageTitle';
 import { isAutomatedBrowser } from './automation';
+import { loadReader, preloadReader } from './loadReader';
 import { ViewerGate } from './ViewerGate';
 import styles from './Viewer.module.css';
 
-// pdf.js is large: load it only once the reader is allowed in, so the gate appears quickly.
-const Reader = lazy(() => import('./Reader'));
+// pdf.js is large: it loads alongside the access request, never before the gate appears.
+const Reader = lazy(loadReader);
 
 /** Keeps shared documents out of search results while the viewer is open. */
 function useNoIndex() {
@@ -84,6 +85,7 @@ function AutoOpen({ slug, onAccess }: { slug: string; onAccess: (access: AccessR
 
   const open = useCallback(() => {
     setError(null);
+    preloadReader();
     const body: AccessRequest = { automated: isAutomatedBrowser() };
     api<AccessResponse>(`/v/${encodeURIComponent(slug)}/access`, { method: 'POST', body }).then(onAccess, setError);
   }, [slug, onAccess]);

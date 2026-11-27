@@ -6,6 +6,7 @@ import { FormAlert } from '../../components/States';
 import { TextField } from '../../components/TextField';
 import { api, ApiError, errorMessage } from '../../lib/api';
 import { isAutomatedBrowser } from './automation';
+import { preloadReader } from './loadReader';
 import styles from './Viewer.module.css';
 
 type Errors = Partial<Record<'email' | 'password', string>>;
@@ -62,6 +63,7 @@ export function ViewerGate({
     if (info.requirePassword) body.password = password;
 
     setSubmitting(true);
+    preloadReader();
     try {
       onAccess(await api<AccessResponse>(`/v/${encodeURIComponent(slug)}/access`, { method: 'POST', body }));
     } catch (error) {
