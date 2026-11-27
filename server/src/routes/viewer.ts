@@ -9,6 +9,7 @@ import type {
   SignedFileResponse,
 } from '@tracked-links/shared';
 import { isLikelyBot } from '../lib/bots';
+import { queueFirstOpenEmail } from '../lib/firstOpen';
 import { HttpError } from '../lib/httpError';
 import { SLUG_PATTERN, linkStatus } from '../lib/links';
 import { parseUserAgent } from '../lib/userAgent';
@@ -218,6 +219,7 @@ export const viewsRouter = Router();
 /**
  * Adds reading time with $inc, so heartbeats from the same tab never overwrite
  * each other. Answers 204 with no body: the beacon on close can't read a reply.
+ * The view's first reading time makes it count, which may mean the link's first-open email.
  */
 viewsRouter.post<{ viewId: string }>(
   '/:viewId/heartbeat',
@@ -230,7 +232,14 @@ viewsRouter.post<{ viewId: string }>(
       throw new HttpError(403, 'This reading session is not valid. Reload the page.', { code: 'invalid_view_token' });
     }
 
-    const view = await View.findById(viewId, { startedAt: 1, pages: 1 }).lean();
+    const view = await View.findById(viewId, {
+      linkId: 1,
+      startedAt: 1,
+      pages: 1,
+      totalDurationMs: 1,
+      viewerEmail: 1,
+      isBot: 1,
+    }).lean();
     if (!view) throw new HttpError(404, 'This reading session has ended. Reload the page.', { code: 'not_found' });
     if (Date.now() - view.startedAt.getTime() > MAX_SESSION_MS) {
       res.status(204).end();
@@ -256,6 +265,7 @@ viewsRouter.post<{ viewId: string }>(
         ...(total > 0 && { $inc: { ...inc, totalDurationMs: total } }),
       },
     );
+    if (total > 0 && view.totalDurationMs === 0 && !view.isBot) queueFirstOpenEmail(view);
     res.status(204).end();
   },
 );

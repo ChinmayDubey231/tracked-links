@@ -1,6 +1,7 @@
 import { config } from './config';
 import { createApp } from './app';
 import { connectDatabase, disconnectDatabase } from './db';
+import { settleFirstOpenEmails } from './lib/firstOpen';
 import { mailer } from './services/email';
 
 async function main() {
@@ -20,7 +21,9 @@ async function main() {
   const shutdown = (signal: string) => {
     console.log(`${signal} received, shutting down.`);
     server.close(() => {
-      disconnectDatabase().finally(() => process.exit(0));
+      settleFirstOpenEmails()
+        .then(() => disconnectDatabase())
+        .finally(() => process.exit(0));
     });
   };
   process.on('SIGTERM', () => shutdown('SIGTERM'));
