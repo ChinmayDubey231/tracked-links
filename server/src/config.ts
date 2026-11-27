@@ -17,7 +17,9 @@ const schema = z.object({
   IP_HASH_SALT: z.string().min(16, 'IP_HASH_SALT must be at least 16 characters.'),
   CLIENT_ORIGIN: z.string().default('http://localhost:5173'),
   PUBLIC_BASE_URL: z.string().default('http://localhost:5173'),
-  API_BASE_URL: z.string().default('http://localhost:4000'),
+  /** Render sets RENDER_EXTERNAL_URL to the service's public address; used when API_BASE_URL is empty. */
+  API_BASE_URL: optionalString,
+  RENDER_EXTERNAL_URL: optionalString,
   TRUST_PROXY: z.coerce.number().int().min(0).default(0),
   STORAGE_DRIVER: optionalString.pipe(z.enum(['local', 's3']).optional()),
   LOCAL_STORAGE_DIR: z.string().default('./storage'),
@@ -71,15 +73,34 @@ if (storageDriver === 's3' && !s3) {
   process.exit(1);
 }
 
+const clientOrigins = env.CLIENT_ORIGIN.split(',').map((origin) => stripSlash(origin.trim())).filter(Boolean);
+const publicBaseUrl = stripSlash(env.PUBLIC_BASE_URL);
+const apiBaseUrl = stripSlash(env.API_BASE_URL ?? env.RENDER_EXTERNAL_URL ?? 'http://localhost:4000');
+
+// A deployed API left on the localhost defaults would refuse the real frontend (CORS) and
+// put localhost addresses in emails and signed file URLs, so refuse to start instead.
+if (env.NODE_ENV === 'production') {
+  const isLocal = (url: string) => /^https?:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/i.test(url);
+  const problems = [
+    clientOrigins.some(isLocal) && 'CLIENT_ORIGIN is still a localhost address. Set it to the frontend URL, e.g. https://tracked-links.vercel.app',
+    isLocal(publicBaseUrl) && 'PUBLIC_BASE_URL is still a localhost address. Set it to the frontend URL.',
+    isLocal(apiBaseUrl) && 'API_BASE_URL is still a localhost address. Set it to this API’s public URL (Render sets RENDER_EXTERNAL_URL for you).',
+  ].filter(Boolean);
+  if (problems.length > 0) {
+    console.error(`Invalid production configuration:\n${problems.map((problem) => `  - ${problem}`).join('\n')}`);
+    process.exit(1);
+  }
+}
+
 export const config = {
   ...env,
   isProduction: env.NODE_ENV === 'production',
   isTest: env.NODE_ENV === 'test',
   storageDriver,
   s3,
-  clientOrigins: env.CLIENT_ORIGIN.split(',').map((origin) => stripSlash(origin.trim())).filter(Boolean),
-  publicBaseUrl: stripSlash(env.PUBLIC_BASE_URL),
-  apiBaseUrl: stripSlash(env.API_BASE_URL),
+  clientOrigins,
+  publicBaseUrl,
+  apiBaseUrl,
 } as const;
 
 export type Config = typeof config;
