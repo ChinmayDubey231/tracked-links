@@ -27,6 +27,9 @@ const schema = z.object({
   S3_ACCESS_KEY_ID: optionalString,
   S3_SECRET_ACCESS_KEY: optionalString,
   SIGNED_URL_TTL_SECONDS: z.coerce.number().int().min(30).max(3600).default(300),
+  /** Resend API key for the first-open email. Without it, emails are printed to the console instead. */
+  RESEND_API_KEY: optionalString,
+  EMAIL_FROM: z.string().default('Tracked Links <onboarding@resend.dev>'),
 });
 
 const parsed = schema.safeParse(process.env);
