@@ -2,7 +2,7 @@
 
 Upload a PDF (usually a resume), create a separate share link for each place you send it, and see how each link gets read: opens, time per page, pages reached and device. Viewers never need an account.
 
-> Build status: **all four phases are built.** What's left is putting it live and recording a demo GIF. See [Build progress](#build-progress).
+> Build status: **all four phases are built and live at [trackedlinks.vercel.app](https://trackedlinks.vercel.app).** What's left is recording a demo GIF. See [Build progress](#build-progress).
 
 ## Stack
 
@@ -185,7 +185,7 @@ The code is in `server/src/lib/demo.ts`, with the sample data in `demoTemplate.t
   - [x] Landing page (built early).
   - [x] Deployment setup: Render Blueprint, Vercel config, CI, keep-alive ping.
   - [x] Demo account: a private sample sandbox per visitor, deleted after 24 hours.
-  - [ ] Live deployment.
+  - [x] Live deployment: [trackedlinks.vercel.app](https://trackedlinks.vercel.app), with the API on Render.
   - [ ] Demo GIF.
 
 ## Design references
