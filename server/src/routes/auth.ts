@@ -2,10 +2,11 @@ import bcrypt from 'bcryptjs';
 import { Router } from 'express';
 import { z } from 'zod';
 import { MIN_PASSWORD_LENGTH, type AuthResponse, type MeResponse, type PublicUser } from '@tracked-links/shared';
+import { createDemoSandbox } from '../lib/demo';
 import { HttpError } from '../lib/httpError';
 import { BCRYPT_ROUNDS, fitsBcrypt } from '../lib/passwords';
 import { currentUserId, requireAuth, signToken } from '../middleware/auth';
-import { authLimiter } from '../middleware/rateLimits';
+import { authLimiter, demoLimiter } from '../middleware/rateLimits';
 import { User } from '../models/User';
 
 /** Compared against when the email is unknown, so both paths take the same time. */
@@ -38,8 +39,20 @@ const loginSchema = z.object({
   password: z.string({ error: 'Enter your password.' }).min(1, { error: 'Enter your password.' }),
 });
 
-export function toPublicUser(user: { _id: { toString(): string }; name: string; email: string; createdAt: Date }): PublicUser {
-  return { id: user._id.toString(), name: user.name, email: user.email, createdAt: user.createdAt.toISOString() };
+export function toPublicUser(user: {
+  _id: { toString(): string };
+  name: string;
+  email: string;
+  createdAt: Date;
+  demoExpiresAt?: Date | null;
+}): PublicUser {
+  return {
+    id: user._id.toString(),
+    name: user.name,
+    email: user.email,
+    createdAt: user.createdAt.toISOString(),
+    demoExpiresAt: user.demoExpiresAt ? user.demoExpiresAt.toISOString() : null,
+  };
 }
 
 export const authRouter = Router();
@@ -69,6 +82,13 @@ authRouter.post('/login', authLimiter, async (req, res) => {
   }
   const body: AuthResponse = { token: signToken(user._id.toString()), user: toPublicUser(user) };
   res.json(body);
+});
+
+/** Starts a demo: a fresh copy of the sample account, no password, deleted after 24 hours (lib/demo.ts). */
+authRouter.post('/demo', demoLimiter, async (_req, res) => {
+  const user = await createDemoSandbox();
+  const body: AuthResponse = { token: signToken(user._id.toString(), user.demoExpiresAt), user: toPublicUser(user) };
+  res.status(201).json(body);
 });
 
 authRouter.get('/me', requireAuth, async (req, res) => {

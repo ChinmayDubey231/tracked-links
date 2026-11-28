@@ -22,6 +22,8 @@ export interface PublicUser {
   name: string;
   email: string;
   createdAt: string;
+  /** Set on a demo sandbox: when it and everything in it is deleted. Null for real accounts. */
+  demoExpiresAt: string | null;
 }
 
 export interface AuthResponse {

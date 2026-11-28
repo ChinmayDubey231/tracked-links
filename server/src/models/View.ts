@@ -30,10 +30,13 @@ const viewSchema = new Schema({
   ipHash: { type: String, default: null },
   /** A crawler, link previewer or automated browser (lib/bots.ts). Kept, but left out of every number. */
   isBot: { type: Boolean, default: false },
+  /** Demo sandboxes only: MongoDB deletes the record at this time (TTL index). Absent on real data. */
+  demoExpiresAt: { type: Date },
 });
 
 viewSchema.index({ documentId: 1, startedAt: -1 });
 viewSchema.index({ linkId: 1, startedAt: -1 });
+viewSchema.index({ demoExpiresAt: 1 }, { expireAfterSeconds: 0, sparse: true });
 
 export type ViewRecord = InferSchemaType<typeof viewSchema>;
 export const View = model('View', viewSchema);
