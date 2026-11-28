@@ -3,6 +3,7 @@ import { useParams } from 'react-router';
 import { linkSettingsSummary, type LinkSummary } from '@tracked-links/shared';
 import { Button, ButtonLink } from '../../components/Button';
 import { CopyButton } from '../../components/CopyButton';
+import { useIsDemo } from '../../components/Demo';
 import { OwnerShell } from '../../components/OwnerShell';
 import { ErrorState, LoadingState } from '../../components/States';
 import { SubHeader } from '../../components/SubHeader';
@@ -19,6 +20,7 @@ export default function NewLinkPage() {
   const { id } = useParams();
   const doc = useDocument(id);
   const create = useCreateLink(id);
+  const isDemo = useIsDemo();
   const [created, setCreated] = useState<LinkSummary | null>(null);
   // Remounts the form for "Create another link", so it starts empty.
   const [formKey, setFormKey] = useState(0);
@@ -84,6 +86,12 @@ export default function NewLinkPage() {
                 </ButtonLink>
               </div>
               <span className={styles.caption}>Until someone opens it, the link shows as “Not opened” on your dashboard.</span>
+              {isDemo && (
+                <span className={styles.caption}>
+                  Try it: open the link in a private window and read a page or two, then come back to this document to see
+                  your visit.
+                </span>
+              )}
             </>
           ) : (
             <>

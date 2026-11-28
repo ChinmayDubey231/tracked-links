@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { AppFooter } from './AppFooter';
+import { DemoBanner } from './Demo';
 import { TopBar } from './TopBar';
 import styles from './OwnerShell.module.css';
 
@@ -17,6 +18,7 @@ export function OwnerShell({
   return (
     <div className={styles.shell}>
       <TopBar />
+      <DemoBanner />
       {subHeader}
       <main id="main" tabIndex={-1} className={cx('container', styles.main, mainClassName)}>
         {children}

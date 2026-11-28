@@ -11,6 +11,7 @@ import {
   type DocumentResponse,
 } from '@tracked-links/shared';
 import { ButtonLink } from '../../components/Button';
+import { useIsDemo } from '../../components/Demo';
 import { OwnerShell } from '../../components/OwnerShell';
 import { StatTile } from '../../components/StatTile';
 import { ErrorState, LoadingState } from '../../components/States';
@@ -102,6 +103,7 @@ export default function DocumentPage() {
   const data = query.data;
   usePageTitle(data?.document.title ?? 'Document');
   const replace = useFileReplace(id);
+  const isDemo = useIsDemo();
   const [pagesBefore, setPagesBefore] = useState<number | null>(null);
 
   const setRange = (next: AnalyticsRange) =>
@@ -113,13 +115,15 @@ export default function DocumentPage() {
       actions={
         data ? (
           <>
-            <ReplaceFileButton
-              busy={replace.busy}
-              onFile={(file) => {
-                setPagesBefore(data.document.pageCount);
-                void replace.start(file);
-              }}
-            />
+            {!isDemo && (
+              <ReplaceFileButton
+                busy={replace.busy}
+                onFile={(file) => {
+                  setPagesBefore(data.document.pageCount);
+                  void replace.start(file);
+                }}
+              />
+            )}
             <ButtonLink to={`/documents/${data.document.id}/links/new`}>New link</ButtonLink>
           </>
         ) : undefined
