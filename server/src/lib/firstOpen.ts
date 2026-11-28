@@ -72,7 +72,12 @@ interface FirstViewLike {
  */
 export async function notifyFirstOpen(view: FirstViewLike): Promise<void> {
   const claimedAt = new Date();
-  const link = await Link.findOneAndUpdate({ _id: view.linkId, notifiedAt: null }, { $set: { notifiedAt: claimedAt } })
+  // demoExpiresAt: null also matches a missing field, so this leaves out demo sandboxes' links:
+  // their owners' addresses are made up, and bounces would hurt the sender's reputation.
+  const link = await Link.findOneAndUpdate(
+    { _id: view.linkId, notifiedAt: null, demoExpiresAt: null },
+    { $set: { notifiedAt: claimedAt } },
+  )
     .select({ label: 1, ownerId: 1, documentId: 1 })
     .lean();
   if (!link) return;

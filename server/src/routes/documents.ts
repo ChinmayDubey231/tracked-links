@@ -14,6 +14,7 @@ import {
   type SignedFileResponse,
 } from '@tracked-links/shared';
 import { loadDocumentReading, loadLinkStats, loadNotOpened, loadRecentViews } from '../lib/analytics';
+import { refuseInDemo } from '../lib/demo';
 import { cleanTitle, isPng, looksLikePdf, readPdfInfo } from '../lib/files';
 import { HttpError } from '../lib/httpError';
 import { serializeLink } from '../lib/links';
@@ -175,6 +176,9 @@ async function storeUpload(ownerId: string, { pdf, thumbnail }: CheckedUpload) {
   return { fileKey, thumbnailKey };
 }
 
+/** Demo sandboxes share the sample PDFs and never store anyone's files. Checked before the upload is read. */
+const noDemoUploads = refuseInDemo('Uploading is turned off in the demo. Create a free account to upload your own PDFs.');
+
 export const documentsRouter = Router();
 documentsRouter.use(requireAuth);
 documentsRouter.use('/:id/links', documentLinksRouter);
@@ -204,7 +208,7 @@ documentsRouter.get('/', async (req, res) => {
   res.json(body);
 });
 
-documentsRouter.post('/', uploadLimiter, uploadFields, async (req, res) => {
+documentsRouter.post('/', noDemoUploads, uploadLimiter, uploadFields, async (req, res) => {
   const ownerId = currentUserId(req);
   const checked = await checkUpload(req);
   const bodyTitle = typeof req.body?.title === 'string' ? req.body.title : '';
@@ -233,7 +237,7 @@ documentsRouter.post('/', uploadLimiter, uploadFields, async (req, res) => {
  * file at the same address. The title stays. Earlier views stay too, each with the page
  * count of the version it read (View.pages).
  */
-documentsRouter.post<{ id: string }>('/:id/replace', uploadLimiter, uploadFields, async (req, res) => {
+documentsRouter.post<{ id: string }>('/:id/replace', noDemoUploads, uploadLimiter, uploadFields, async (req, res) => {
   const ownerId = currentUserId(req);
   const doc = await findOwnedDocument(req.params.id, ownerId);
   const checked = await checkUpload(req);
@@ -312,7 +316,7 @@ documentsRouter.get('/:id/file', async (req, res) => {
   res.json(body);
 });
 
-documentsRouter.delete('/:id', async (req, res) => {
+documentsRouter.delete<{ id: string }>('/:id', refuseInDemo('Deleting documents is turned off in the demo.'), async (req, res) => {
   const doc = await findOwnedDocument(req.params.id, currentUserId(req));
   await Promise.all([View.deleteMany({ documentId: doc._id }), Link.deleteMany({ documentId: doc._id })]);
   await doc.deleteOne();
