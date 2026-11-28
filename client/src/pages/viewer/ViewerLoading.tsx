@@ -61,13 +61,12 @@ const SHEET: { kind: 'title' | 'section' | 'line' | 'gap'; width?: number }[] = 
 
 /**
  * A page-shaped placeholder where the document will appear, with a card saying what is
- * happening: the step, the download percentage when the size is known, and a note if it is slow.
+ * happening: the step, and a note if it is slow.
  */
-export function LoadingSheet({ step, progress = null }: { step: LoadingStep; progress?: number | null }) {
+export function LoadingSheet({ step }: { step: LoadingStep }) {
   const index = STEPS.findIndex((item) => item.key === step);
   const current = STEPS[index]!;
   const slow = useSlow(step);
-  const percent = step === 'file' && progress !== null ? Math.round(progress * 100) : null;
 
   return (
     <div className={styles.loadingSheet}>
@@ -89,15 +88,9 @@ export function LoadingSheet({ step, progress = null }: { step: LoadingStep; pro
         <div className={styles.loadingCard}>
           <div className={styles.loadingHead}>
             <span className={styles.loadingSpinner} aria-hidden="true" />
-            {/* Only the step and the note are announced: a running percentage would be noisy. */}
             <p className={styles.loadingLabel} role="status">
               {current.label}…{slow && <span className="visually-hidden"> {current.slowHint}</span>}
             </p>
-            {percent !== null && (
-              <span className={styles.loadingPercent} aria-hidden="true">
-                {percent}%
-              </span>
-            )}
           </div>
 
           <div className={styles.stepMeter} aria-hidden="true">
@@ -106,12 +99,7 @@ export function LoadingSheet({ step, progress = null }: { step: LoadingStep; pro
                 key={item.key}
                 className={cx(styles.stepSegment, stepIndex < index && styles.stepDone)}
               >
-                {stepIndex === index &&
-                  (percent !== null ? (
-                    <span className={styles.stepFill} style={{ width: `${percent}%` }} />
-                  ) : (
-                    <span className={styles.stepSweep} />
-                  ))}
+                {stepIndex === index && <span className={styles.stepSweep} />}
               </span>
             ))}
           </div>

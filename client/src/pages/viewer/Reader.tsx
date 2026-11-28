@@ -84,7 +84,7 @@ function useCurrentPage(container: HTMLElement | null, count: number, topOffset:
 
 /** The public PDF reader (design/screens/viewer.html), with reading-time tracking. */
 export default function Reader({ slug, access }: { slug: string; access: AccessResponse }) {
-  const { blob, failed, progress: downloaded } = usePdfBlob(access.file.url);
+  const { blob, failed } = usePdfBlob(access.file.url);
   const [pageSizes, setPageSizes] = useState<PageSize[]>([]);
   const [firstPageDrawn, setFirstPageDrawn] = useState(false);
   const [loadError, setLoadError] = useState(false);
@@ -182,7 +182,7 @@ export default function Reader({ slug, access }: { slug: string; access: AccessR
     // component's effects (downloading the PDF again, in a loop). Pages inherit the setting.
     body = (
       <>
-        {!ready && <LoadingSheet step={blob ? 'pages' : 'file'} progress={downloaded} />}
+        {!ready && <LoadingSheet step={blob ? 'pages' : 'file'} />}
         {blob && (
           <Document
             suspense={false}

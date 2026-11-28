@@ -456,14 +456,6 @@
   color: var(--color-ink-strong);
 }
 
-.loadingPercent {
-  flex: none;
-  color: var(--color-brand-text);
-  font-weight: 600;
-  font-size: var(--text-small);
-  font-variant-numeric: tabular-nums;
-}
-
 .stepMeter {
   display: flex;
   gap: var(--space-1);
@@ -480,13 +472,6 @@
 
 .stepDone {
   background: var(--color-brand);
-}
-
-.stepFill {
-  position: absolute;
-  inset: 0 auto 0 0;
-  background: var(--color-brand);
-  transition: width 150ms ease;
 }
 
 .stepSweep {
