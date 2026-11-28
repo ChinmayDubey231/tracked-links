@@ -139,6 +139,35 @@
   gap: 18px;
 }
 
+/* "or", then Try the demo: for visitors who only want to look around. */
+.demo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.or {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-muted);
+  font-size: var(--text-small);
+}
+
+.or::before,
+.or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-rule);
+}
+
+.demoHint {
+  color: var(--color-muted);
+  font-size: var(--text-caption);
+  text-align: center;
+}
+
 .switch {
   color: var(--color-muted);
 }

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from
 import { Link } from 'react-router';
 import { AppFooter, FooterAnchor, FooterLink } from '../../components/AppFooter';
 import { ButtonLink } from '../../components/Button';
+import { DemoButton } from '../../components/Demo';
 import { DataTable, type Column } from '../../components/DataTable';
 import { LogoMark } from '../../components/LogoMark';
 import { PageThumb } from '../../components/PageThumb';
@@ -240,11 +241,17 @@ export default function LandingPage() {
                     <UploadIcon />
                     {signedIn ? 'Go to your documents' : 'Start tracking your PDF'}
                   </ButtonLink>
-                  <ButtonLink to="#tracking" variant="secondary" className={styles.cta} onClick={scrollToSection}>
-                    See how it works
-                  </ButtonLink>
+                  {signedIn ? (
+                    <ButtonLink to="#tracking" variant="secondary" className={styles.cta} onClick={scrollToSection}>
+                      See how it works
+                    </ButtonLink>
+                  ) : (
+                    <DemoButton buttonClassName={styles.cta} />
+                  )}
                 </div>
-                <span className={styles.heroNote}>Viewers don’t need an account.</span>
+                <span className={styles.heroNote}>
+                  {signedIn ? 'Viewers don’t need an account.' : 'Viewers don’t need an account, and neither does the demo.'}
+                </span>
               </div>
               <HeroArt className={styles.heroArt} />
             </div>
