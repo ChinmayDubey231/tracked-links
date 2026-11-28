@@ -1,5 +1,6 @@
 import { useLayoutEffect, type ReactNode } from 'react';
 import { Link } from 'react-router';
+import { DemoButton } from '../../components/Demo';
 import { LogoMark } from '../../components/LogoMark';
 import styles from './AuthLayout.module.css';
 
@@ -55,6 +56,11 @@ export function AuthLayout({
               <p className={styles.subtitle}>{subtitle}</p>
             </div>
             {children}
+            <div className={styles.demo}>
+              <span className={styles.or}>or</span>
+              <DemoButton block size="lg" />
+              <span className={styles.demoHint}>A sample account with fictional documents. No sign-up; it’s deleted after 24 hours.</span>
+            </div>
             <p className={styles.switch}>{footer}</p>
           </div>
         </div>

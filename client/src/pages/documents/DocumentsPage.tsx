@@ -13,6 +13,7 @@ import {
 } from '@tracked-links/shared';
 import { Button, ButtonLink } from '../../components/Button';
 import { DataTable, type Column } from '../../components/DataTable';
+import { DemoUploadNotice, useIsDemo } from '../../components/Demo';
 import { OwnerShell } from '../../components/OwnerShell';
 import { PageThumb } from '../../components/PageThumb';
 import { ErrorState, LoadingState } from '../../components/States';
@@ -109,6 +110,7 @@ export default function DocumentsPage() {
   usePageTitle('Documents');
   const dropzone = useRef<UploadDropzoneHandle>(null);
   const upload = useDocumentUpload();
+  const isDemo = useIsDemo();
   const query = useQuery({
     queryKey: ['documents'],
     queryFn: ({ signal }) => api<DocumentsResponse>('/documents', { signal }),
@@ -120,7 +122,7 @@ export default function DocumentsPage() {
     <SubHeader
       crumbs={[{ label: 'Documents' }]}
       actions={
-        hasDocuments ? (
+        hasDocuments && !isDemo ? (
           <Button onClick={() => dropzone.current?.open()} disabled={upload.busy}>
             Upload PDF
           </Button>
@@ -180,12 +182,16 @@ export default function DocumentsPage() {
           <p className={styles.subtitle}>{subtitle}</p>
         </div>
         {query.data.notOpened && <NotOpenedCard notOpened={query.data.notOpened} />}
-        <UploadDropzone
-          ref={dropzone}
-          onFile={upload.start}
-          busy={upload.busy}
-          feedback={<UploadFeedback state={upload.state} />}
-        />
+        {isDemo ? (
+          <DemoUploadNotice />
+        ) : (
+          <UploadDropzone
+            ref={dropzone}
+            onFile={upload.start}
+            busy={upload.busy}
+            feedback={<UploadFeedback state={upload.state} />}
+          />
+        )}
         <DataTable
           caption="Your documents"
           columns={columns}

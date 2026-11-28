@@ -152,6 +152,8 @@ viewerRouter.post<{ slug: string }>('/:slug/access', accessLimiter, async (req, 
       ...parseUserAgent(userAgent),
       ipHash: hashIp(req.ip),
       isBot: input.automated === true || isLikelyBot(userAgent),
+      // Views of a demo sandbox's links go when the sandbox does.
+      ...(link.demoExpiresAt && { demoExpiresAt: link.demoExpiresAt }),
     });
     const id = created._id.toString();
     view = { id, token: viewToken(id) };

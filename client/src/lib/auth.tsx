@@ -12,6 +12,8 @@ interface AuthContextValue {
   user: PublicUser | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
+  /** Starts a demo sandbox: a copy of the sample account, deleted after 24 hours. */
+  startDemo: () => Promise<void>;
   logout: () => void;
 }
 
@@ -69,6 +71,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [finish],
   );
 
+  const startDemo = useCallback(async () => {
+    finish(await api<AuthResponse>('/auth/demo', { method: 'POST', auth: false }));
+  }, [finish]);
+
   const logout = useCallback(() => {
     setToken(null);
     setUser(null);
@@ -76,7 +82,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryClient.clear();
   }, [queryClient]);
 
-  const value = useMemo(() => ({ status, user, login, signup, logout }), [status, user, login, signup, logout]);
+  const value = useMemo(
+    () => ({ status, user, login, signup, startDemo, logout }),
+    [status, user, login, signup, startDemo, logout],
+  );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

@@ -21,6 +21,13 @@ export const authLimiter = limiter({
   message: 'Too many attempts. Wait 15 minutes, then try again.',
 });
 
+/** Starting a demo sandbox (POST /auth/demo). Each one writes about 30 records, so keep it low. */
+export const demoLimiter = limiter({
+  windowMs: 60 * 60 * 1000,
+  limit: 10,
+  message: 'You’ve started a lot of demos in the last hour. Wait a while, or create a free account.',
+});
+
 /** Opening a shared link (POST /v/:slug/access): limits guessing link passwords. */
 export const accessLimiter = limiter({
   windowMs: 15 * 60 * 1000,

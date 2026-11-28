@@ -1,0 +1,210 @@
+<!doctype html>
+<!--
+  Source of portfolio.pdf and portfolio.png, the demo account's sample portfolio.
+  Printed to PDF from a Chromium browser: A4, no margins, background graphics on.
+  Everyone and everything named here is fictional.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Neha Verma, Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; }
+  body { font-family: 'DM Sans', sans-serif; color: #22223A; font-size: 10.5pt; line-height: 1.5; }
+  .page { width: 210mm; height: 297mm; padding: 18mm; position: relative; overflow: hidden; break-after: page; }
+  .page:last-child { break-after: auto; }
+  .ink { color: #34307A; }
+  .coral { color: #E2603F; }
+
+  /* Cover */
+  .cover { background: #34307A; color: #F4F2FF; display: flex; flex-direction: column; justify-content: space-between; }
+  .cover .eyebrow { font-size: 10pt; letter-spacing: 0.2em; text-transform: uppercase; color: #C9C4FF; }
+  .cover h1 { font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 54pt; line-height: 1.02; margin-top: 8mm; }
+  .cover h1 span { color: #FF9A7E; }
+  .cover .who { font-size: 13pt; margin-top: 8mm; color: #E3E0FF; }
+  .shapes { position: absolute; right: -30mm; top: 70mm; width: 120mm; height: 120mm; }
+  .shapes .c1 { position: absolute; inset: 0; border-radius: 50%; border: 18mm solid #4A44A3; }
+  .shapes .c2 { position: absolute; left: 30mm; top: 30mm; width: 60mm; height: 60mm; border-radius: 50%; background: #E2603F; }
+  .toc { list-style: none; border-top: 1px solid #5C57B0; }
+  .toc li { display: flex; justify-content: space-between; align-items: baseline; padding: 4mm 0; border-bottom: 1px solid #5C57B0; font-size: 12pt; }
+  .toc .num { font-family: 'DM Serif Display', serif; font-size: 16pt; color: #FF9A7E; margin-right: 5mm; }
+  .toc .meta { font-size: 9.5pt; color: #C9C4FF; }
+
+  /* Case studies */
+  .kicker { display: flex; justify-content: space-between; font-size: 9.5pt; color: #6A6890; letter-spacing: 0.06em; text-transform: uppercase; }
+  h2 { font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 32pt; line-height: 1.08; color: #22223A; margin: 5mm 0 4mm; }
+  h2 .num { color: #E2603F; margin-right: 3mm; }
+  .lead { font-size: 12pt; color: #44446A; max-width: 150mm; }
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; margin: 8mm 0; }
+  .metric { background: #F3F2FB; border-radius: 4mm; padding: 5mm; }
+  .metric strong { display: block; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 24pt; color: #34307A; line-height: 1.1; }
+  .metric span { font-size: 9.5pt; color: #55557A; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 9mm; }
+  h3 { font-size: 11pt; font-weight: 700; color: #34307A; margin-bottom: 1.5mm; }
+  p + h3 { margin-top: 5mm; }
+  ul { margin-left: 4.5mm; }
+  li { margin-bottom: 1.2mm; }
+  li::marker { color: #E2603F; }
+
+  .flow { display: flex; align-items: center; gap: 3mm; margin: 8mm 0 2mm; }
+  .step { flex: 1; border: 1.5px solid #CFCDEB; border-radius: 3mm; padding: 4mm 3mm; text-align: center; font-size: 9.5pt; color: #44446A; background: #fff; }
+  .step b { display: block; font-size: 10.5pt; color: #22223A; }
+  .step.new { border-color: #34307A; background: #F3F2FB; }
+  .arrow { color: #A9A6D6; font-size: 14pt; }
+  .caption { font-size: 9pt; color: #6A6890; }
+  .row-label { font-size: 9pt; font-weight: 700; color: #6A6890; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 6mm; }
+
+  .timeline { display: flex; justify-content: space-between; position: relative; margin: 10mm 4mm 4mm; }
+  .timeline::before { content: ''; position: absolute; left: 4mm; right: 4mm; top: 3mm; height: 2px; background: #CFCDEB; }
+  .timeline .dot { position: relative; text-align: center; width: 30mm; font-size: 9.5pt; color: #44446A; }
+  .timeline .dot::before { content: ''; display: block; width: 6mm; height: 6mm; margin: 0 auto 2mm; border-radius: 50%; background: #34307A; border: 2px solid #fff; box-shadow: 0 0 0 2px #34307A; }
+  .timeline .dot.live::before { background: #E2603F; box-shadow: 0 0 0 2px #E2603F; }
+
+  .map { height: 52mm; border-radius: 4mm; background: #EEF3F1; position: relative; overflow: hidden; margin: 7mm 0 3mm; }
+  .road { position: absolute; background: #fff; }
+  .route { position: absolute; border-radius: 2mm; }
+  .contact { margin-top: 9mm; background: #34307A; color: #F4F2FF; border-radius: 5mm; padding: 8mm; display: flex; justify-content: space-between; align-items: center; }
+  .contact h3 { color: #fff; font-size: 16pt; font-family: 'DM Serif Display', serif; font-weight: 400; }
+  .contact p { color: #D9D6FF; }
+
+  footer { position: absolute; left: 18mm; right: 18mm; bottom: 9mm; display: flex; justify-content: space-between; font-size: 7.5pt; color: #8B89A8; }
+  .cover footer { color: #A9A4E8; }
+</style>
+</head>
+<body>
+<section class="page cover">
+  <div>
+    <div class="eyebrow">Portfolio · 2021–2026</div>
+    <h1>Selected<br>work, <span>told<br>briefly.</span></h1>
+    <div class="who">Neha Verma, Frontend Engineer</div>
+  </div>
+  <div class="shapes" aria-hidden="true"><div class="c1"></div><div class="c2"></div></div>
+  <ol class="toc">
+    <li><span><span class="num">01</span>Checkout, rebuilt</span><span class="meta">Saffron Systems · page 2</span></li>
+    <li><span><span class="num">02</span>Order tracking, live</span><span class="meta">Saffron Systems · page 3</span></li>
+    <li><span><span class="num">03</span>Commute Planner</span><span class="meta">Side project · page 4</span></li>
+  </ol>
+  <footer><span>Sample document for the Tracked Links demo. All names, companies and details are fictional.</span><span>1 / 4</span></footer>
+</section>
+
+<section class="page">
+  <div class="kicker"><span>Saffron Systems · Grocery app</span><span>2024</span></div>
+  <h2><span class="num">01</span>Checkout, rebuilt</h2>
+  <p class="lead">Checkout took five screens and lost almost a third of shoppers at payment. I led a three-person team to rebuild it as one screen that loads fast on a cheap phone.</p>
+
+  <div class="metrics">
+    <div class="metric"><strong>−18%</strong><span>drop-off at payment</span></div>
+    <div class="metric"><strong>1.9 s</strong><span>load on a mid-range Android phone, from 4.1 s</span></div>
+    <div class="metric"><strong>4 teams</strong><span>now build on the components we made</span></div>
+  </div>
+
+  <div class="row-label">Before: five screens</div>
+  <div class="flow">
+    <div class="step"><b>Cart</b>review</div><span class="arrow">→</span>
+    <div class="step"><b>Address</b>pick or add</div><span class="arrow">→</span>
+    <div class="step"><b>Slot</b>delivery time</div><span class="arrow">→</span>
+    <div class="step"><b>Offers</b>coupons</div><span class="arrow">→</span>
+    <div class="step"><b>Pay</b>method</div>
+  </div>
+  <div class="row-label">After: one screen</div>
+  <div class="flow">
+    <div class="step new" style="flex: 3"><b>Cart, address, slot and offers</b>shown together, each editable in place</div><span class="arrow">→</span>
+    <div class="step new"><b>Pay</b>saved method first</div>
+  </div>
+
+  <div class="cols" style="margin-top: 9mm">
+    <div>
+      <h3>What I did</h3>
+      <ul>
+        <li>Mapped where people left, using session recordings and funnel data.</li>
+        <li>Prototyped the single screen and tested it with twelve shoppers.</li>
+        <li>Rebuilt it in React and TypeScript behind a feature flag, then rolled it out city by city.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>What I learned</h3>
+      <p>The biggest win wasn’t fewer screens. It was showing the delivery fee before payment, so the total never surprised anyone.</p>
+    </div>
+  </div>
+  <footer><span>Sample document for the Tracked Links demo. All names, companies and details are fictional.</span><span>2 / 4</span></footer>
+</section>
+
+<section class="page">
+  <div class="kicker"><span>Saffron Systems · Customer app</span><span>2023</span></div>
+  <h2><span class="num">02</span>Order tracking, live</h2>
+  <p class="lead">Customers phoned support to ask where their groceries were. I built a tracking screen that updates on its own and gives an honest arrival time.</p>
+
+  <div class="metrics">
+    <div class="metric"><strong>300k</strong><span>customers use it each week</span></div>
+    <div class="metric"><strong>−32%</strong><span>“Where is my order?” calls</span></div>
+    <div class="metric"><strong>±6 min</strong><span>typical error in the arrival estimate</span></div>
+  </div>
+
+  <div class="timeline">
+    <div class="dot">Order placed</div>
+    <div class="dot">Packed</div>
+    <div class="dot live">On the way</div>
+    <div class="dot">Arriving</div>
+    <div class="dot">Delivered</div>
+  </div>
+  <p class="caption" style="text-align: center">Each step updates over a WebSocket; the screen falls back to polling on weak connections.</p>
+
+  <div class="cols" style="margin-top: 9mm">
+    <div>
+      <h3>The problem</h3>
+      <p>The old screen showed a fixed “30–45 minutes” for every order. People didn’t trust it, so they called.</p>
+      <h3>The approach</h3>
+      <ul>
+        <li>Worked with the data team on an estimate that uses the rider’s live position.</li>
+        <li>Showed a range that narrows as the rider gets closer.</li>
+        <li>Added a calm message when an order runs late, before the customer notices.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Built with</h3>
+      <p>React, TypeScript, WebSockets, and a small state machine so the screen can never show two steps at once.</p>
+      <h3>Accessibility</h3>
+      <p>Status changes are announced to screen readers, and the progress line has a text equivalent.</p>
+    </div>
+  </div>
+  <footer><span>Sample document for the Tracked Links demo. All names, companies and details are fictional.</span><span>3 / 4</span></footer>
+</section>
+
+<section class="page">
+  <div class="kicker"><span>Side project</span><span>2023 – Present</span></div>
+  <h2><span class="num">03</span>Commute Planner</h2>
+  <p class="lead">A small web app that compares bus, metro and cab options for the trip you make every day, using open transit data.</p>
+
+  <div class="map" aria-hidden="true">
+    <div class="road" style="left: 0; right: 0; top: 22mm; height: 3mm;"></div>
+    <div class="road" style="top: 0; bottom: 0; left: 60mm; width: 3mm;"></div>
+    <div class="road" style="top: 0; bottom: 0; left: 120mm; width: 3mm;"></div>
+    <div class="route" style="left: 14mm; top: 21.5mm; width: 108mm; height: 4mm; background: #34307A;"></div>
+    <div class="route" style="left: 119.5mm; top: 8mm; width: 4mm; height: 17mm; background: #34307A;"></div>
+    <div class="route" style="left: 14mm; top: 36mm; width: 47mm; height: 4mm; background: #E2603F;"></div>
+    <div class="route" style="left: 59.5mm; top: 8mm; width: 4mm; height: 32mm; background: #E2603F;"></div>
+  </div>
+  <p class="caption">Metro (indigo) against bus (coral) for the same trip.</p>
+
+  <div class="metrics">
+    <div class="metric"><strong>2,000</strong><span>people use it each month</span></div>
+    <div class="metric"><strong>3</strong><span>cities with open transit data</span></div>
+    <div class="metric"><strong>98</strong><span>Lighthouse performance score</span></div>
+  </div>
+
+  <div class="contact">
+    <div>
+      <h3>Let’s talk</h3>
+      <p>neha.verma@example.com · nehaverma.example.com</p>
+    </div>
+    <p>Open to frontend roles<br>in Pune or remote.</p>
+  </div>
+  <footer><span>Sample document for the Tracked Links demo. All names, companies and details are fictional.</span><span>4 / 4</span></footer>
+</section>
+</body>
+</html>

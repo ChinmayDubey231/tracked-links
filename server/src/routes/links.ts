@@ -126,6 +126,8 @@ documentLinksRouter.post('/', async (req, res) => {
         passwordHash,
         allowDownload: input.allowDownload,
         expiresAt: expiry,
+        // A demo sandbox's links go when it does.
+        ...(doc.demoExpiresAt && { demoExpiresAt: doc.demoExpiresAt }),
       });
       const body: LinkResponse = { link: serializeLink(link, doc.pageCount) };
       res.status(201).json(body);

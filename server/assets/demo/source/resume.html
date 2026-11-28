@@ -1,0 +1,173 @@
+<!doctype html>
+<!--
+  Source of resume.pdf and resume.png, the demo account's sample resume.
+  Printed to PDF from a Chromium browser: A4, no margins, background graphics on.
+  Everyone and everything named here is fictional.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Neha Verma, Resume</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; }
+  body { font-family: 'Source Sans 3', sans-serif; color: #1E2430; font-size: 10.5pt; line-height: 1.45; }
+  .page { width: 210mm; height: 297mm; padding: 17mm 18mm 20mm; position: relative; overflow: hidden; break-after: page; }
+  .page:last-child { break-after: auto; }
+  header { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 5mm; border-bottom: 2px solid #2F4B7C; }
+  h1 { font-family: 'Source Serif 4', serif; font-size: 27pt; line-height: 1.1; color: #17233B; letter-spacing: -0.01em; }
+  .role { font-size: 12.5pt; color: #2F4B7C; font-weight: 600; margin-top: 1.5mm; }
+  .contact { text-align: right; font-size: 9.5pt; color: #4A5468; line-height: 1.6; }
+  .summary { margin-top: 5mm; font-size: 10.5pt; color: #333B4A; }
+  h2 { font-family: 'Source Serif 4', serif; font-size: 12.5pt; color: #17233B; text-transform: uppercase; letter-spacing: 0.08em; margin: 7mm 0 3mm; display: flex; align-items: center; gap: 3mm; }
+  h2::after { content: ''; flex: 1; height: 1px; background: #CBD3E1; }
+  .job { margin-bottom: 4.5mm; }
+  .job-head { display: flex; justify-content: space-between; align-items: baseline; gap: 4mm; }
+  .job-title { font-weight: 700; font-size: 11pt; color: #17233B; }
+  .job-org { color: #2F4B7C; font-weight: 600; }
+  .dates { font-size: 9.5pt; color: #5A6478; white-space: nowrap; }
+  ul { margin: 1.5mm 0 0 4.5mm; }
+  li { margin-bottom: 1mm; padding-left: 1mm; }
+  li::marker { color: #2F4B7C; }
+  .skills { display: grid; grid-template-columns: 32mm 1fr; row-gap: 1.8mm; }
+  .skills dt { font-weight: 700; color: #17233B; }
+  .project { margin-bottom: 4mm; }
+  .project-name { font-weight: 700; color: #17233B; }
+  .tags { font-size: 9pt; color: #5A6478; margin-top: 0.8mm; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
+  footer { position: absolute; left: 18mm; right: 18mm; bottom: 9mm; display: flex; justify-content: space-between; font-size: 7.5pt; color: #8A93A5; border-top: 1px solid #E3E7EF; padding-top: 2mm; }
+</style>
+</head>
+<body>
+<section class="page">
+  <header>
+    <div>
+      <h1>Neha Verma</h1>
+      <div class="role">Frontend Engineer</div>
+    </div>
+    <div class="contact">
+      neha.verma@example.com<br>
+      Pune, India<br>
+      nehaverma.example.com
+    </div>
+  </header>
+
+  <p class="summary">
+    Frontend engineer with five years of experience building fast, accessible web apps in React and
+    TypeScript. I like turning messy flows into simple ones, and then measuring whether it worked.
+  </p>
+
+  <h2>Experience</h2>
+
+  <div class="job">
+    <div class="job-head">
+      <div><span class="job-title">Senior Frontend Engineer</span>, <span class="job-org">Saffron Systems</span>, Pune</div>
+      <div class="dates">Jan 2024 – Present</div>
+    </div>
+    <ul>
+      <li>Led the rebuild of the grocery app’s checkout in React and TypeScript, cutting drop-off at payment by 18%.</li>
+      <li>Brought the heaviest page’s load time on mid-range Android phones from 4.1 s to 1.9 s by splitting bundles and deferring third-party scripts.</li>
+      <li>Started a shared component library now used by four product teams, with accessibility checks in CI.</li>
+      <li>Mentor two junior engineers and run the fortnightly frontend guild.</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-head">
+      <div><span class="job-title">Frontend Engineer</span>, <span class="job-org">Saffron Systems</span>, Pune</div>
+      <div class="dates">Jul 2022 – Dec 2023</div>
+    </div>
+    <ul>
+      <li>Built the live order-tracking screen used by 300,000 customers a week, with updates over WebSockets.</li>
+      <li>Replaced a jQuery admin panel with React one page at a time, without pausing feature work.</li>
+      <li>Cut “Where is my order?” support calls by 32% with clearer delivery estimates.</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-head">
+      <div><span class="job-title">Software Engineer</span>, <span class="job-org">Tidewater Software</span>, Bengaluru</div>
+      <div class="dates">Aug 2021 – Jun 2022</div>
+    </div>
+    <ul>
+      <li>Built internal tools for the support team in React and Node.js, cutting average ticket handling time by 25%.</li>
+      <li>Wrote the first end-to-end tests for the billing flow, which caught two release-blocking bugs in their first month.</li>
+    </ul>
+  </div>
+
+  <h2>Skills</h2>
+  <dl class="skills">
+    <dt>Languages</dt><dd>TypeScript, JavaScript, HTML, CSS, SQL</dd>
+    <dt>Frameworks</dt><dd>React, Next.js, Node.js, Express</dd>
+    <dt>Practice</dt><dd>Accessibility (WCAG 2.2), performance budgets, design systems, testing with Vitest and Playwright</dd>
+    <dt>Tools</dt><dd>Git, GitHub Actions, Figma, Chrome DevTools, Lighthouse</dd>
+  </dl>
+
+  <footer><span>Sample document for the Tracked Links demo. All names, companies and details are fictional.</span><span>1 / 2</span></footer>
+</section>
+
+<section class="page">
+  <h2 style="margin-top: 0">Projects</h2>
+
+  <div class="project">
+    <div class="job-head">
+      <span class="project-name">Commute Planner</span>
+      <span class="dates">2023 – Present</span>
+    </div>
+    <p>Compares bus, metro and cab options for a daily commute using open transit data. About 2,000 people use it each month.</p>
+    <div class="tags">React · TypeScript · MapLibre · Node.js</div>
+  </div>
+
+  <div class="project">
+    <div class="job-head">
+      <span class="project-name">Split</span>
+      <span class="dates">2022</span>
+    </div>
+    <p>An expense-splitting app that works offline and syncs when the phone is back online.</p>
+    <div class="tags">Progressive web app · IndexedDB · Service workers</div>
+  </div>
+
+  <div class="project">
+    <div class="job-head">
+      <span class="project-name">Open-source contributions</span>
+      <span class="dates">2021 – Present</span>
+    </div>
+    <p>Added keyboard navigation to an open-source charting library, and fixed tooltip positioning on small screens.</p>
+    <div class="tags">Accessibility · SVG · Testing</div>
+  </div>
+
+  <h2>Education</h2>
+  <div class="job">
+    <div class="job-head">
+      <div><span class="job-title">B.Tech, Computer Engineering</span>, <span class="job-org">Riverside Institute of Technology</span></div>
+      <div class="dates">2017 – 2021</div>
+    </div>
+    <p style="margin-top: 1mm">CGPA 8.6 / 10. Final-year project: a low-bandwidth version of the college’s learning portal.</p>
+  </div>
+
+  <h2>Certifications</h2>
+  <ul style="margin-top: 0">
+    <li><strong>Frontend Performance Engineering</strong>, Open Web Academy, 2025</li>
+    <li><strong>Accessibility Fundamentals</strong>, Inclusive Design Collective, 2024</li>
+    <li><strong>First place, Riverside Hackathon</strong>, Riverside Institute of Technology, 2020</li>
+  </ul>
+
+  <div class="two">
+    <div>
+      <h2>Languages</h2>
+      <p>English, Hindi, Marathi</p>
+    </div>
+    <div>
+      <h2>Interests</h2>
+      <p>Badminton, street photography, and teaching at a weekend coding club.</p>
+    </div>
+  </div>
+
+  <footer><span>Sample document for the Tracked Links demo. All names, companies and details are fictional.</span><span>2 / 2</span></footer>
+</section>
+</body>
+</html>

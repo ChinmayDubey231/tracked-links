@@ -53,7 +53,7 @@ export function AccountMenu({ user, onLogout }: { user: PublicUser | null; onLog
         {user && (
           <div className={styles.who}>
             <span className={styles.name}>{user.name}</span>
-            <span className={styles.email}>{user.email}</span>
+            <span className={styles.email}>{user.demoExpiresAt ? 'Demo account' : user.email}</span>
           </div>
         )}
         <Link to="/help" className={styles.item} onClick={() => setOpen(false)}>

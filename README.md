@@ -161,6 +161,17 @@ The first time someone reads a link, its owner gets an email saying who opened i
 
 Earlier views are kept. Each one remembers the page count of the version it read, so "read 3 of 4 pages" stays true after the file changes, while the heatmap and reach are drawn on the current file. If two tabs replace the same document at once, the second is told to reload, so no stored file is left behind.
 
+## Demo account
+
+**Try the demo** on the landing page and the log-in page gives each visitor a private copy of a sample account, with no sign-up. It belongs to Neha Verma, a fictional frontend engineer, and holds a resume, a portfolio and certificates with three weeks of reading history. That history covers every state the app shows: read in full, stopped early, not opened, expired, switched off, and links that ask for an email. The view times are counted back from when the demo starts, so the dashboard always looks recent.
+
+- Visitors can do everything except upload, replace or delete files. They can make links, open them in a private window, and watch their own visit arrive.
+- Each sandbox is deleted after 24 hours. Every record in it carries `demoExpiresAt`, and a TTL index on each collection has MongoDB delete it at that time, so no cleanup job is needed. Links and views made during the demo get the same date. The session token expires at the same moment.
+- Demo links never send the first-open email. Their owner's address is on the reserved `.invalid` domain, so nothing could be delivered there anyway.
+- Sandboxes share the same three PDFs, which are put in storage once per server start. Starting a demo is limited to 10 an hour per IP address, and to 500 sandboxes alive at once.
+
+The code is in `server/src/lib/demo.ts`, with the sample data in `demoTemplate.ts`. The PDFs and thumbnails are in `server/assets/demo`, printed from the HTML in `server/assets/demo/source` (A4, no margins, backgrounds on). Every page says it is a sample with fictional names.
+
 ## Build progress
 
 - [x] **Phase 1, foundations:** monorepo, design tokens, shared components, sign-up / log-in with JWT, upload to private storage, Documents screen with real data and the empty state.
@@ -173,6 +184,7 @@ Earlier views are kept. Each one remembers the page count of the version it read
   - [x] Rate limits on every route, and security headers on the frontend.
   - [x] Landing page (built early).
   - [x] Deployment setup: Render Blueprint, Vercel config, CI, keep-alive ping.
+  - [x] Demo account: a private sample sandbox per visitor, deleted after 24 hours.
   - [ ] Live deployment.
   - [ ] Demo GIF.
 

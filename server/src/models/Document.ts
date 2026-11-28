@@ -13,9 +13,12 @@ const documentSchema = new Schema({
   version: { type: Number, default: 1 },
   replacedAt: { type: Date, default: null },
   createdAt: { type: Date, default: () => new Date() },
+  /** Demo sandboxes only: MongoDB deletes the record at this time (TTL index). Absent on real data. */
+  demoExpiresAt: { type: Date },
 });
 
 documentSchema.index({ ownerId: 1, createdAt: -1 });
+documentSchema.index({ demoExpiresAt: 1 }, { expireAfterSeconds: 0, sparse: true });
 
 export type DocumentRecord = InferSchemaType<typeof documentSchema>;
 export const DocumentModel = model('Document', documentSchema);

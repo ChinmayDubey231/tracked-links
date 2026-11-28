@@ -15,7 +15,11 @@ const linkSchema = new Schema({
   /** When the first-open email went out (phase 4). */
   notifiedAt: { type: Date, default: null },
   createdAt: { type: Date, default: () => new Date() },
+  /** Demo sandboxes only: MongoDB deletes the record at this time (TTL index). Absent on real data. */
+  demoExpiresAt: { type: Date },
 });
+
+linkSchema.index({ demoExpiresAt: 1 }, { expireAfterSeconds: 0, sparse: true });
 
 export type LinkRecord = InferSchemaType<typeof linkSchema>;
 export const Link = model('Link', linkSchema);

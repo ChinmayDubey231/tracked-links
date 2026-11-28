@@ -260,7 +260,8 @@
 .heroActions {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  /* Top-aligned: the demo button can show a note underneath while it starts. */
+  align-items: flex-start;
   gap: var(--space-3);
 }
 
